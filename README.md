@@ -1,5 +1,4 @@
-=======
-"# Personal Calendar Web Application
+# Personal Calendar Web Application
 
 ##  프로젝트 소개
 
@@ -105,4 +104,4 @@ npm run build
 3. **일정 수정**: 사이드바의 일정 카드에서 수정 버튼 클릭
 4. **세부 내용**: 일정 카드를 클릭하여 전체 내용 보기/숨기기
 5. **키보드 사용**: 시간 입력 시 Enter 키로 다음 필드 이동
->>>>>>> bb20b6c (first commit)
+
