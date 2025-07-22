@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #213547;
+  background-color: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #f3f4f6;
+}
+
+#root {
+  width: 100%;
+  height: 100vh;
+}
+
+/* react-big-calendar 커스텀 스타일 */
+.rbc-calendar {
+  font-family: inherit;
+}
+
+.rbc-event {
+  border-radius: 6px !important;
+  border: none !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  padding: 2px 6px !important;
+}
+
+.rbc-date-cell {
+  padding: 8px 4px !important;
+}
+
+.rbc-header {
+  border-bottom: 1px solid #e5e7eb !important;
+  padding: 12px 8px !important;
+  font-weight: 600 !important;
+  background-color: #f9fafb !important;
+  display: none !important; /* react-big-calendar 기본 헤더 숨기기 */
+}
+
+.rbc-month-view {
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+}
+
+.rbc-day-bg {
+  border-right: 1px solid #f3f4f6 !important;
+}
+
+.rbc-day-bg:hover {
+  background-color: #f8fafc !important;
+}
+
+/* 이전/다음 달 날짜 통일된 배경 처리 */
+.rbc-off-range-bg {
+  background-color: #f3f4f6 !important;
+}
+
+/* 오늘 날짜 배경 */
+.rbc-today {
+  background-color: #e0f2fe !important;
+}
+
+/* 모달 애니메이션 */
+.modal-enter {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.modal-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.modal-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.modal-exit-active {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* YearMonthPicker 커스텀 스타일 */
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.month-grid-item {
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+  font-size: 10px;
+}
+
+/* 스크롤바 스타일링 */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
