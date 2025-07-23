@@ -65,10 +65,6 @@ body {
   border-right: 1px solid #f3f4f6 !important;
 }
 
-.rbc-day-bg:hover {
-  background-color: #f8fafc !important;
-}
-
 /* 이전/다음 달 날짜 통일된 배경 처리 */
 .rbc-off-range-bg {
   background-color: #f3f4f6 !important;
@@ -138,4 +134,29 @@ body {
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+/* react-big-calendar 날짜 색상 강제 적용 */
+.rbc-date-cell {
+  text-align: right !important;
+  padding-right: 8px !important;
+  padding-top: 8px !important;
+}
+
+/* react-big-calendar 월 뷰에서 요일별 색상 적용 */
+.rbc-month-view .rbc-month-row .rbc-date-cell:nth-child(1) {
+  color: #ef4444 !important; /* 일요일 - 빨간색 */
+}
+
+.rbc-month-view .rbc-month-row .rbc-date-cell:nth-child(7) {
+  color: #2563eb !important; /* 토요일 - 파란색 */
+}
+
+/* 각 주의 첫 번째와 마지막 셀에 색상 적용 */
+.rbc-date-cell:first-child {
+  color: #ef4444 !important; /* 일요일 */
+}
+
+.rbc-date-cell:last-child {
+  color: #2563eb !important; /* 토요일 */
 }

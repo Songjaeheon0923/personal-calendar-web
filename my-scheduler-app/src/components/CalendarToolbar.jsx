@@ -1,32 +1,35 @@
 import { format } from "date-fns";
 import { WEEKDAYS } from "../constants";
 
-function CalendarToolbar({ date, onNavigate, onShowMonthPicker }) {
+function CalendarToolbar({ date, onNavigate, onOpenMonthPicker, disabled }) {
   const yearMonth = format(date, "yyyy년 M월");
   
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-start px-6 py-4 bg-white">
         <button
-          className="text-2xl px-2 py-1 hover:bg-gray-100 rounded"
-          onClick={() => onNavigate("PREV")}
+          className={`text-2xl px-2 py-1 rounded ${disabled ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-100'}`}
+          onClick={disabled ? undefined : () => onNavigate("PREV")}
           aria-label="이전 달"
           style={{ marginRight: "2rem" }}
+          disabled={disabled}
         >
           ◀
         </button>
         <button
-          className="text-2xl font-bold select-none mx-8"
-          style={{ background: "none", color: "#222", border: "none", boxShadow: "none", padding: 0, cursor: "pointer" }}
-          onClick={onShowMonthPicker}
+          className={`text-2xl font-bold select-none mx-8 ${disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+          style={{ background: "none", color: "#222", border: "none", boxShadow: "none", padding: 0 }}
+          onClick={disabled ? undefined : onOpenMonthPicker}
+          disabled={disabled}
         >
           {yearMonth}
         </button>
         <button
-          className="text-2xl px-2 py-1 hover:bg-gray-100 rounded"
-          onClick={() => onNavigate("NEXT")}
+          className={`text-2xl px-2 py-1 rounded ${disabled ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-100'}`}
+          onClick={disabled ? undefined : () => onNavigate("NEXT")}
           aria-label="다음 달"
           style={{ marginLeft: "2rem" }}
+          disabled={disabled}
         >
           ▶
         </button>

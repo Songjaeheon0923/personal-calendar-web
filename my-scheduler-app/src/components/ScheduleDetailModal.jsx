@@ -212,7 +212,8 @@ function ScheduleDetailModal({
                   }
                 }
               }}
-              className="w-full p-2 border rounded h-20 resize-none"
+              className="w-full p-2 border rounded resize-none"
+              style={{ height: '200px' }}
               placeholder="메모를 입력하세요..."
             />
           </div>

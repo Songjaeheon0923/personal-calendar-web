@@ -197,7 +197,8 @@ function AddScheduleModal({
         <div className="mb-3">
           <label className="block mb-1 font-semibold">메모</label>
           <textarea
-            className="w-full border rounded px-3 py-2 h-20 resize-none"
+            className="w-full border rounded px-3 py-2 resize-none"
+            style={{ height: '200px' }}
             value={formData.memo}
             onChange={(e) => onFormDataChange({ memo: e.target.value })}
             onKeyDown={(e) => {
