@@ -113,7 +113,20 @@ function Sidebar({
                             {schedule.title}
                           </h3>
                           <span className="text-sm text-gray-600">
-                            {schedule.startTime || '시간미정'} ~ {schedule.endTime || '시간미정'}
+                            {(() => {
+                              const hasStartTime = schedule.startTime;
+                              const hasEndTime = schedule.endTime;
+                              
+                              if (!hasStartTime && !hasEndTime) {
+                                return '시간미정';
+                              } else if (hasStartTime && !hasEndTime) {
+                                return `${schedule.startTime} ~`;
+                              } else if (!hasStartTime && hasEndTime) {
+                                return `~ ${schedule.endTime}`;
+                              } else {
+                                return `${schedule.startTime} ~ ${schedule.endTime}`;
+                              }
+                            })()}
                           </span>
                         </div>
                       </div>

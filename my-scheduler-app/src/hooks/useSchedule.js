@@ -8,6 +8,7 @@ export function useSchedule() {
   
   // 일정 추가 폼 상태
   const [selectedDate, setSelectedDate] = useState(null);
+  const [endDate, setEndDate] = useState(null); // 종료 날짜 추가
   const [title, setTitle] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -18,22 +19,43 @@ export function useSchedule() {
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDate, setEditDate] = useState("");
+  const [editEndDate, setEditEndDate] = useState(""); // 종료 날짜 수정용 추가
   const [editStartTime, setEditStartTime] = useState("");
   const [editEndTime, setEditEndTime] = useState("");
   const [editColor, setEditColor] = useState(CATEGORY_COLORS[0].color);
 
   // react-big-calendar의 event 포맷으로 변환
   const events = useMemo(() =>
-    schedules.map((s) => ({
-      id: s.id,
-      title: s.title,
-      start: new Date(s.date + (s.startTime ? 'T' + s.startTime : 'T00:00')),
-      end: new Date(s.date + (s.endTime ? 'T' + s.endTime : 'T23:59')),
-      color: s.color,
-      startTime: s.startTime, // 시작 시간 직접 추가
-      endTime: s.endTime, // 종료 시간 직접 추가
-      resource: s, // 원본 일정 정보 포함
-    })),
+    schedules.map((s) => {
+      // 시작 날짜와 종료 날짜 설정
+      const startDate = s.date;
+      const endDate = s.endDate || s.date; // 종료 날짜가 없으면 시작 날짜와 동일
+      
+      // 시간이 있는 경우와 없는 경우 처리
+      let startDateTime, endDateTime;
+      
+      if (s.startTime || s.endTime) {
+        // 시간이 있는 경우: 첫 날의 시작 시간부터 마지막 날의 종료 시간까지
+        startDateTime = new Date(startDate + (s.startTime ? 'T' + s.startTime : 'T00:00'));
+        endDateTime = new Date(endDate + (s.endTime ? 'T' + s.endTime : 'T23:59'));
+      } else {
+        // 하루 종일 이벤트인 경우: 여러 날짜에 걸쳐 표시
+        startDateTime = new Date(startDate + 'T00:00');
+        endDateTime = new Date(endDate + 'T23:59');
+      }
+
+      return {
+        id: s.id,
+        title: s.title,
+        start: startDateTime,
+        end: endDateTime,
+        color: s.color,
+        startTime: s.startTime,
+        endTime: s.endTime,
+        resource: s,
+        allDay: !s.startTime && !s.endTime, // 하루 종일 이벤트 여부
+      };
+    }),
     [schedules]
   );
 
@@ -47,6 +69,7 @@ export function useSchedule() {
         id: Date.now(),
         title,
         date: format(selectedDate, "yyyy-MM-dd"),
+        endDate: endDate ? format(endDate, "yyyy-MM-dd") : null, // 종료 날짜 추가
         startTime,
         endTime,
         color,
@@ -94,6 +117,7 @@ export function useSchedule() {
               ...schedule, 
               title: editTitle,
               date: editDate,
+              endDate: editEndDate || null, // 종료 날짜 수정 추가
               startTime: editStartTime,
               endTime: editEndTime,
               color: editColor,
@@ -147,6 +171,7 @@ export function useSchedule() {
     setSelectedSchedule(schedule);
     setEditTitle(schedule.title);
     setEditDate(schedule.date);
+    setEditEndDate(schedule.endDate || ""); // 종료 날짜 설정 추가
     setEditStartTime(schedule.startTime || "");
     setEditEndTime(schedule.endTime || "");
     setEditColor(schedule.color);
@@ -158,6 +183,7 @@ export function useSchedule() {
     schedules,
     events,
     selectedDate,
+    endDate, // 종료 날짜 추가
     title,
     startTime,
     endTime,
@@ -166,12 +192,14 @@ export function useSchedule() {
     selectedSchedule,
     editTitle,
     editDate,
+    editEndDate, // 종료 날짜 수정용 추가
     editStartTime,
     editEndTime,
     editColor,
     
     // 상태 업데이트 함수들
     setSelectedDate,
+    setEndDate, // 종료 날짜 설정 함수 추가
     setTitle,
     setStartTime,
     setEndTime,
@@ -179,6 +207,7 @@ export function useSchedule() {
     setMemo,
     setEditTitle,
     setEditDate,
+    setEditEndDate, // 종료 날짜 수정 함수 추가
     setEditStartTime,
     setEditEndTime,
     setEditColor,

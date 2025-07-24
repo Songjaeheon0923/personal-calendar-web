@@ -15,6 +15,7 @@ function ModalContainer({
   const handleAddFormChange = (updates) => {
     if (updates.title !== undefined) schedule.setTitle(updates.title);
     if (updates.selectedDate !== undefined) schedule.setSelectedDate(updates.selectedDate);
+    if (updates.endDate !== undefined) schedule.setEndDate(updates.endDate);
     if (updates.startTime !== undefined) schedule.setStartTime(updates.startTime);
     if (updates.endTime !== undefined) schedule.setEndTime(updates.endTime);
     if (updates.color !== undefined) schedule.setColor(updates.color);
@@ -25,6 +26,7 @@ function ModalContainer({
   const handleEditFormChange = (updates) => {
     if (updates.editTitle !== undefined) schedule.setEditTitle(updates.editTitle);
     if (updates.editDate !== undefined) schedule.setEditDate(updates.editDate);
+    if (updates.editEndDate !== undefined) schedule.setEditEndDate(updates.editEndDate);
     if (updates.editStartTime !== undefined) schedule.setEditStartTime(updates.editStartTime);
     if (updates.editEndTime !== undefined) schedule.setEditEndTime(updates.editEndTime);
     if (updates.editColor !== undefined) schedule.setEditColor(updates.editColor);
@@ -52,6 +54,7 @@ function ModalContainer({
         formData={{
           title: schedule.title,
           selectedDate: schedule.selectedDate,
+          endDate: schedule.endDate,
           startTime: schedule.startTime,
           endTime: schedule.endTime,
           color: schedule.color,
@@ -59,6 +62,13 @@ function ModalContainer({
         }}
         onFormDataChange={handleAddFormChange}
         onDateInputClick={ui.openMiniCalendar}
+        showMiniCalendar={ui.showMiniCalendar}
+        miniCalendarProps={{
+          selectedDate: schedule.selectedDate ? format(schedule.selectedDate, 'yyyy-MM-dd') : '',
+          onDateSelect: handlers.handleMiniCalendarDateSelect,
+          onClose: () => ui.setShowMiniCalendar(false),
+          position: ui.miniCalendarPosition
+        }}
       />
 
       {/* 일정 상세 모달 */}
@@ -71,6 +81,7 @@ function ModalContainer({
         formData={{
           editTitle: schedule.editTitle,
           editDate: schedule.editDate,
+          editEndDate: schedule.editEndDate,
           editStartTime: schedule.editStartTime,
           editEndTime: schedule.editEndTime,
           editColor: schedule.editColor,
@@ -78,17 +89,14 @@ function ModalContainer({
         }}
         onFormDataChange={handleEditFormChange}
         onDateInputClick={ui.openMiniCalendar}
+        showMiniCalendar={ui.showMiniCalendar}
+        miniCalendarProps={{
+          selectedDate: schedule.editDate,
+          onDateSelect: handlers.handleMiniCalendarDateSelect,
+          onClose: () => ui.setShowMiniCalendar(false),
+          position: ui.miniCalendarPosition
+        }}
       />
-
-      {/* 미니 달력 */}
-      {ui.showMiniCalendar && (
-        <MiniCalendar
-          selectedDate={ui.modalOpen ? (schedule.selectedDate ? format(schedule.selectedDate, 'yyyy-MM-dd') : '') : schedule.editDate}
-          onDateSelect={handlers.handleMiniCalendarDateSelect}
-          onClose={() => ui.setShowMiniCalendar(false)}
-          position={ui.miniCalendarPosition}
-        />
-      )}
 
       {/* 이벤트 컨텍스트 메뉴 */}
       <EventContextMenu

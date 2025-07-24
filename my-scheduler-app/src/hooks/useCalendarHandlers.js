@@ -4,6 +4,7 @@ export function useCalendarHandlers(schedule, ui) {
   // 폼 초기화 함수
   const resetAddForm = () => {
     schedule.setTitle("");
+    schedule.setEndDate(null); // 종료 날짜 초기화 추가
     schedule.setStartTime("");
     schedule.setEndTime("");
     schedule.setColor(CATEGORY_COLORS[0].color);
@@ -100,9 +101,23 @@ export function useCalendarHandlers(schedule, ui) {
   // 미니 달력에서 날짜 선택
   const handleMiniCalendarDateSelect = (dateString) => {
     if (ui.modalOpen) {
-      schedule.setSelectedDate(new Date(dateString));
+      // 일정 추가 모달에서
+      if (ui.miniCalendarDateType === 'start') {
+        schedule.setSelectedDate(new Date(dateString));
+        // 시작 날짜가 변경되면 종료 날짜도 동일하게 설정
+        schedule.setEndDate(new Date(dateString));
+      } else if (ui.miniCalendarDateType === 'end') {
+        schedule.setEndDate(new Date(dateString));
+      }
     } else if (ui.scheduleDetailOpen) {
-      schedule.setEditDate(dateString);
+      // 일정 수정 모달에서
+      if (ui.miniCalendarDateType === 'start') {
+        schedule.setEditDate(dateString);
+        // 시작 날짜가 변경되면 종료 날짜도 동일하게 설정
+        schedule.setEditEndDate(dateString);
+      } else if (ui.miniCalendarDateType === 'end') {
+        schedule.setEditEndDate(dateString);
+      }
     }
     ui.setShowMiniCalendar(false);
   };

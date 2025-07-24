@@ -120,6 +120,9 @@ function Calendar({
 
     // 이벤트 객체에서 시간 정보 가져오기
     const startTime = formatTime(event.startTime);
+    
+    // 여러 날짜에 걸친 일정인지 확인
+    const isMultiDay = event.start.toDateString() !== event.end.toDateString();
 
     return (
       <div
@@ -135,7 +138,7 @@ function Calendar({
           lineHeight: '1.3',
           overflow: 'hidden',
           display: 'flex',
-          justifyContent: 'space-between',
+          justifyContent: isMultiDay ? 'center' : 'space-between', // 여러 날짜면 중앙 정렬
           alignItems: 'center'
         }}
       >
@@ -144,11 +147,12 @@ function Calendar({
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
           flex: 1,
-          marginRight: startTime ? '4px' : '0'
+          marginRight: startTime && !isMultiDay ? '4px' : '0', // 여러 날짜면 마진 제거
+          textAlign: isMultiDay ? 'center' : 'left' // 여러 날짜면 중앙 정렬
         }}>
           {event.title}
         </span>
-        {startTime && (
+        {startTime && !isMultiDay && ( // 여러 날짜 일정에서는 시간 숨기기
           <span style={{ 
             fontWeight: '600',
             opacity: '0.9',

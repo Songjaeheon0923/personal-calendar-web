@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import { CATEGORY_COLORS } from "../constants";
 import { formatTimeInput } from "../utils/timeUtils";
+import MiniCalendar from "./MiniCalendar";
 
 function ScheduleDetailModal({
   isOpen,
@@ -11,6 +12,8 @@ function ScheduleDetailModal({
   formData,
   onFormDataChange,
   onDateInputClick,
+  showMiniCalendar,
+  miniCalendarProps,
 }) {
   const modalRef = useRef(null);
   const titleRef = useRef(null);
@@ -114,7 +117,7 @@ function ScheduleDetailModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div 
         ref={modalRef}
-        className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto"
+        className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto relative"
       >
         <h2 className="text-lg font-semibold mb-4">일정 상세 정보</h2>
         
@@ -132,21 +135,41 @@ function ScheduleDetailModal({
             />
           </div>
           
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">날짜</label>
-            <div 
-              className="relative"
-              onClick={onDateInputClick}
-            >
-              <input
-                type="text"
-                value={formData.editDate}
-                readOnly
-                className="w-full p-3 border rounded cursor-pointer hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-white"
-                style={{ minHeight: '40px' }}
-                placeholder="날짜를 선택하세요"
-                required
-              />
+          <div className="mb-4 flex gap-2">
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-2">시작 날짜</label>
+              <div 
+                className="relative date-input-trigger"
+                onClick={onDateInputClick}
+                data-date-type="start"
+              >
+                <input
+                  type="text"
+                  value={formData.editDate}
+                  readOnly
+                  className="w-full p-3 border rounded cursor-pointer hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-white"
+                  style={{ minHeight: '40px' }}
+                  placeholder="시작 날짜"
+                  required
+                />
+              </div>
+            </div>
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-2">종료 날짜</label>
+              <div 
+                className="relative date-input-trigger"
+                onClick={onDateInputClick}
+                data-date-type="end"
+              >
+                <input
+                  type="text"
+                  value={formData.editEndDate || ''}
+                  readOnly
+                  className="w-full p-3 border rounded cursor-pointer hover:border-blue-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-white"
+                  style={{ minHeight: '40px' }}
+                  placeholder="종료 날짜 (선택사항)"
+                />
+              </div>
             </div>
           </div>
           
@@ -243,6 +266,11 @@ function ScheduleDetailModal({
             </div>
           </div>
         </form>
+        
+        {/* 미니 달력 */}
+        {showMiniCalendar && (
+          <MiniCalendar {...miniCalendarProps} />
+        )}
       </div>
     </div>
   );
