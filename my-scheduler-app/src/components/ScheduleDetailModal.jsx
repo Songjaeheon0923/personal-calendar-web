@@ -3,6 +3,8 @@ import { CATEGORY_COLORS } from "../constants";
 import { formatTimeInput } from "../utils/timeUtils";
 import MiniCalendar from "./MiniCalendar";
 
+import { useState } from "react";
+
 function ScheduleDetailModal({
   isOpen,
   onClose,
@@ -15,6 +17,24 @@ function ScheduleDetailModal({
   showMiniCalendar,
   miniCalendarProps,
 }) {
+  const [errorMsg, setErrorMsg] = useState("");
+  const [fadeOut, setFadeOut] = useState(false);
+  useEffect(() => {
+    if (errorMsg) {
+      setFadeOut(false);
+      const fadeTimer = setTimeout(() => {
+        setFadeOut(true);
+      }, 500); // 0.5초 후 페이드아웃 시작
+      const removeTimer = setTimeout(() => {
+        setErrorMsg("");
+        setFadeOut(false);
+      }, 2500); // 2초 페이드아웃 후 완전 제거
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(removeTimer);
+      };
+    }
+  }, [errorMsg]);
   const modalRef = useRef(null);
   const titleRef = useRef(null);
   const startTimeRef = useRef(null);
@@ -121,7 +141,19 @@ function ScheduleDetailModal({
       >
         <h2 className="text-lg font-semibold mb-4">일정 상세 정보</h2>
         
-        <form onSubmit={onSubmit}>
+        <form onSubmit={e => {
+          e.preventDefault();
+          setErrorMsg("");
+          if (formData.editDate && formData.editEndDate) {
+            const start = new Date(formData.editDate);
+            const end = new Date(formData.editEndDate);
+            if (end < start) {
+              setErrorMsg("종료 날짜는 시작 날짜 이후여야 합니다.");
+              return;
+            }
+          }
+          onSubmit(e);
+        }}>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">제목</label>
             <input
@@ -169,6 +201,14 @@ function ScheduleDetailModal({
                   style={{ minHeight: '40px' }}
                   placeholder="종료 날짜 (선택사항)"
                 />
+                {errorMsg && (
+                  <div
+                    className={`absolute left-0 right-0 mt-2 bg-red-100 border border-red-400 text-red-700 text-sm rounded shadow p-2 z-10 transition-opacity duration-[2000ms] ${fadeOut ? 'opacity-0' : 'opacity-100'}`}
+                    style={{ pointerEvents: 'none' }}
+                  >
+                    {errorMsg}
+                  </div>
+                )}
               </div>
             </div>
           </div>

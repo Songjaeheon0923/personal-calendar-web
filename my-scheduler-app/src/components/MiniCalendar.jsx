@@ -55,35 +55,27 @@ function MiniCalendar({ selectedDate, onDateSelect, onClose, position }) {
     if (e.target.closest('.drag-handle') && !e.target.closest('button')) {
       e.preventDefault();
       e.stopPropagation();
-      
       const rect = calendarRef.current.getBoundingClientRect();
       const modalContainer = calendarRef.current.closest('form') || calendarRef.current.closest('[data-modal]');
-      
       setIsDragging(true);
       setHasBeenDragged(true); // 드래그되었음을 표시
       setDragStart({
         x: e.clientX - rect.left,
         y: e.clientY - rect.top
       });
-      
-      // 드래그 시작 시 현재 위치를 모달 기준 상대 좌표로 설정
+      // 항상 드래그 시작 시 실제 렌더링 위치(px)로 변환
+      let topPx = rect.top;
+      let leftPx = rect.left;
       if (modalContainer) {
         const modalRect = modalContainer.getBoundingClientRect();
-        const relativeTop = rect.top - modalRect.top;
-        const relativeLeft = rect.left - modalRect.left;
-        
-        setCalendarPosition({
-          top: `${relativeTop}px`,
-          left: `${relativeLeft}px`,
-          transform: 'none'
-        });
-      } else {
-        // fallback: 현재 위치 유지
-        setCalendarPosition(prev => ({
-          ...prev,
-          transform: 'none'
-        }));
+        topPx = rect.top - modalRect.top;
+        leftPx = rect.left - modalRect.left;
       }
+      setCalendarPosition({
+        top: `${topPx}px`,
+        left: `${leftPx}px`,
+        transform: 'none'
+      });
     }
   }, []);
 

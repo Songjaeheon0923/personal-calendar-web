@@ -52,6 +52,7 @@ function App() {
           showSidebar={ui.showSidebar}
           sidebarDate={ui.sidebarDate}
           sidebarSchedules={ui.sidebarSchedules}
+          schedules={schedule.schedules}
           expandedEventIds={ui.expandedEventIds}
           onClose={ui.closeSidebar}
           onToggleExpand={ui.toggleEventExpansion}

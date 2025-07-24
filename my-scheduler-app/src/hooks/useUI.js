@@ -42,18 +42,21 @@ export function useUI() {
   const openSidebar = (date, schedules, expandedEventId = null) => {
     const dateStr = format(date, 'yyyy-MM-dd');
     const daySchedules = schedules
-      .filter(schedule => schedule.date === dateStr)
+      .filter(schedule => {
+        const start = new Date(schedule.date);
+        const end = schedule.endDate ? new Date(schedule.endDate) : start;
+        const target = new Date(dateStr);
+        return target >= start && target <= end;
+      })
       .sort((a, b) => {
         if (!a.startTime && !b.startTime) return 0;
         if (!a.startTime) return 1;
         if (!b.startTime) return -1;
         return a.startTime.localeCompare(b.startTime);
       });
-    
     setSidebarDate(date);
     setSidebarSchedules(daySchedules);
     setShowSidebar(true);
-    
     // 특정 이벤트를 확장하도록 설정
     if (expandedEventId !== null) {
       setExpandedEventIds([expandedEventId]);

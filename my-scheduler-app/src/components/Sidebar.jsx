@@ -6,7 +6,7 @@ import { renderContentWithLinks } from "../utils/textUtils";
 function Sidebar({ 
   showSidebar, 
   sidebarDate, 
-  sidebarSchedules, 
+  sidebarSchedules, schedules,
   expandedEventIds,
   onClose,
   onToggleExpand,
@@ -14,6 +14,28 @@ function Sidebar({
   onDeleteSchedule,
   onAddSchedule
 }) {
+  const [filteredSchedules, setFilteredSchedules] = useState([]);
+
+  useEffect(() => {
+    if (!showSidebar || !sidebarDate || !schedules) {
+      setFilteredSchedules([]);
+      return;
+    }
+    const sidebarDateStr = format(sidebarDate, 'yyyy-MM-dd');
+    const result = schedules.filter(schedule => {
+      const start = new Date(schedule.date);
+      const end = schedule.endDate ? new Date(schedule.endDate) : start;
+      const target = new Date(sidebarDateStr);
+      return target >= start && target <= end;
+    }).sort((a, b) => {
+      if (!a.startTime && !b.startTime) return 0;
+      if (!a.startTime) return 1;
+      if (!b.startTime) return -1;
+      return a.startTime.localeCompare(b.startTime);
+    });
+    setFilteredSchedules(result);
+  }, [showSidebar, sidebarDate, schedules]);
+
   return (
     <>
       {/* 사이드바 */}
@@ -53,9 +75,9 @@ function Sidebar({
         <div className={`flex-1 overflow-y-auto p-6 transform transition-all duration-400 ease-out delay-75 ${
           showSidebar ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
         }`}>
-          {sidebarSchedules.length > 0 ? (
+          {filteredSchedules.length > 0 ? (
             <div className="space-y-3">
-              {sidebarSchedules.map((schedule) => (
+              {filteredSchedules.map((schedule) => (
                 <div key={schedule.id} className="border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
                   <div 
                     className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"

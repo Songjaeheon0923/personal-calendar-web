@@ -4,6 +4,8 @@ import { CATEGORY_COLORS } from "../constants";
 import { formatTimeInput } from "../utils/timeUtils";
 import MiniCalendar from "./MiniCalendar";
 
+import { useState } from "react";
+
 function AddScheduleModal({
   isOpen,
   onClose,
@@ -14,10 +16,28 @@ function AddScheduleModal({
   showMiniCalendar,
   miniCalendarProps,
 }) {
+  const [fadeOut, setFadeOut] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const modalRef = useRef(null);
   const titleRef = useRef(null);
   const startTimeRef = useRef(null);
   const endTimeRef = useRef(null);
+  useEffect(() => {
+    if (errorMsg) {
+      setFadeOut(false);
+      const fadeTimer = setTimeout(() => {
+        setFadeOut(true);
+      }, 500); // 0.5초 후 페이드아웃 시작
+      const removeTimer = setTimeout(() => {
+        setErrorMsg("");
+        setFadeOut(false);
+      }, 2500); // 2초 페이드아웃 후 완전 제거
+      return () => {
+        clearTimeout(fadeTimer);
+        clearTimeout(removeTimer);
+      };
+    }
+  }, [errorMsg]);
 
   // 모달이 열렸을 때 제목 입력란에 자동 포커스
   useEffect(() => {
@@ -126,7 +146,19 @@ function AddScheduleModal({
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <form 
         ref={modalRef}
-        onSubmit={onSubmit} 
+        onSubmit={(e) => {
+          e.preventDefault();
+          setErrorMsg("");
+          if (formData.selectedDate && formData.endDate) {
+            const start = new Date(format(formData.selectedDate, "yyyy-MM-dd"));
+            const end = new Date(format(formData.endDate, "yyyy-MM-dd"));
+            if (end < start) {
+              setErrorMsg("종료 날짜는 시작 날짜 이후여야 합니다.");
+              return;
+            }
+          }
+          onSubmit(e);
+        }}
         className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative"
       >
         <h2 className="text-xl font-bold mb-4">일정 추가</h2>
@@ -178,6 +210,14 @@ function AddScheduleModal({
                 style={{ minHeight: '40px' }}
                 placeholder="종료 날짜 (선택사항)"
               />
+              {errorMsg && (
+                <div
+                  className={`absolute left-0 right-0 mt-2 bg-red-100 border border-red-400 text-red-700 text-sm rounded shadow p-2 z-10 transition-opacity duration-[2000ms] ${fadeOut ? 'opacity-0' : 'opacity-100'}`}
+                  style={{ pointerEvents: 'none' }}
+                >
+                  {errorMsg}
+                </div>
+              )}
             </div>
           </div>
         </div>

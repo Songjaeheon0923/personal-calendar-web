@@ -89,19 +89,19 @@ export function useSchedule() {
       // 실시간 사이드바 업데이트
       if (showSidebar && sidebarDate) {
         const sidebarDateStr = format(sidebarDate, 'yyyy-MM-dd');
-        const newScheduleDateStr = format(selectedDate, 'yyyy-MM-dd');
-        
-        if (sidebarDateStr === newScheduleDateStr) {
-          const updatedSidebarSchedules = updatedSchedules
-            .filter(schedule => schedule.date === sidebarDateStr)
-            .sort((a, b) => {
-              if (!a.startTime && !b.startTime) return 0;
-              if (!a.startTime) return 1;
-              if (!b.startTime) return -1;
-              return a.startTime.localeCompare(b.startTime);
-            });
-          setSidebarSchedules(updatedSidebarSchedules);
-        }
+        // 여러 날짜에 걸친 일정도 모두 표시
+        const updatedSidebarSchedules = updatedSchedules.filter(schedule => {
+          const start = new Date(schedule.date);
+          const end = schedule.endDate ? new Date(schedule.endDate) : start;
+          const target = new Date(sidebarDateStr);
+          return target >= start && target <= end;
+        }).sort((a, b) => {
+          if (!a.startTime && !b.startTime) return 0;
+          if (!a.startTime) return 1;
+          if (!b.startTime) return -1;
+          return a.startTime.localeCompare(b.startTime);
+        });
+        setSidebarSchedules(updatedSidebarSchedules);
       }
     };
   };
@@ -130,15 +130,19 @@ export function useSchedule() {
       
       // 사이드바가 열려있고 현재 날짜의 일정이면 사이드바 업데이트
       if (showSidebar && sidebarDate) {
-        const dateStr = format(sidebarDate, 'yyyy-MM-dd');
-        const updatedSidebarSchedules = updatedSchedules
-          .filter(schedule => schedule.date === dateStr)
-          .sort((a, b) => {
-            if (!a.startTime && !b.startTime) return 0;
-            if (!a.startTime) return 1;
-            if (!b.startTime) return -1;
-            return a.startTime.localeCompare(b.startTime);
-          });
+        const sidebarDateStr = format(sidebarDate, 'yyyy-MM-dd');
+        // 여러 날짜에 걸친 일정도 모두 표시
+        const updatedSidebarSchedules = updatedSchedules.filter(schedule => {
+          const start = new Date(schedule.date);
+          const end = schedule.endDate ? new Date(schedule.endDate) : start;
+          const target = new Date(sidebarDateStr);
+          return target >= start && target <= end;
+        }).sort((a, b) => {
+          if (!a.startTime && !b.startTime) return 0;
+          if (!a.startTime) return 1;
+          if (!b.startTime) return -1;
+          return a.startTime.localeCompare(b.startTime);
+        });
         setSidebarSchedules(updatedSidebarSchedules);
       }
     };
