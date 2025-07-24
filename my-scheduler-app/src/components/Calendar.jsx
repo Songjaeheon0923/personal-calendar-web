@@ -21,78 +21,68 @@ function Calendar({
   // 날짜 셀 우클릭 처리를 위한 이벤트 리스너
   React.useEffect(() => {
     const handleDateCellRightClick = (e) => {
-      // 이벤트 위에서 우클릭한 경우는 제외
-      if (e.target.closest('.rbc-event')) {
+      // 이벤트 위에서 우클릭한 경우는 제외 (이벤트 컨텍스트 메뉴가 처리)
+      if (e.target.closest('.rbc-event') || e.target.closest('.rbc-event-content')) {
         return;
       }
 
-      // 모든 가능한 날짜 관련 클래스들을 확인
-      const targetElement = e.target;
-      const isDateCellArea = 
-        targetElement.closest('.rbc-date-cell') ||
-        targetElement.closest('.rbc-day-slot') ||
-        targetElement.closest('.rbc-header') ||
-        targetElement.closest('.rbc-events-container') ||
-        targetElement.closest('.rbc-day-bg') ||
-        targetElement.classList.contains('rbc-date-cell') ||
-        targetElement.classList.contains('rbc-day-slot') ||
-        targetElement.classList.contains('rbc-header') ||
-        targetElement.classList.contains('rbc-events-container') ||
-        targetElement.classList.contains('rbc-day-bg');
+      // 캘린더 영역 내에서의 우클릭인지 확인
+      const calendarContainer = e.target.closest('.rbc-calendar');
+      if (!calendarContainer) {
+        return;
+      }
+
+      // 날짜 셀 관련 영역에서의 우클릭인지 확인
+      const isDateArea = 
+        e.target.closest('.rbc-date-cell') ||
+        e.target.closest('.rbc-day-slot') ||
+        e.target.closest('.rbc-day-bg') ||
+        e.target.closest('.rbc-events-container') ||
+        e.target.closest('.rbc-month-row') ||
+        e.target.classList.contains('rbc-date-cell') ||
+        e.target.classList.contains('rbc-day-slot') ||
+        e.target.classList.contains('rbc-day-bg') ||
+        e.target.classList.contains('rbc-events-container');
       
-      if (isDateCellArea) {
+      if (isDateArea) {
         e.preventDefault();
+        e.stopPropagation();
         
-        // 날짜 셀을 찾기 위한 여러 시도
-        let targetCell = null;
-        
-        // 직접적인 날짜 셀 찾기
-        targetCell = targetElement.closest('.rbc-date-cell');
-        
-        // 날짜 셀이 없다면 부모 요소들을 통해 찾기
-        if (!targetCell) {
-          let currentElement = targetElement;
-          while (currentElement && currentElement !== document.body) {
-            // 월 행(.rbc-month-row) 내에서 찾기
-            if (currentElement.classList?.contains('rbc-month-row')) {
-              // 클릭 위치를 기반으로 어떤 셀인지 계산
-              const monthRow = currentElement;
-              const dateCells = Array.from(monthRow.querySelectorAll('.rbc-date-cell'));
-              
-              if (dateCells.length > 0) {
-                // 클릭 좌표를 기반으로 어떤 셀인지 찾기
-                const rect = monthRow.getBoundingClientRect();
-                const relativeX = e.clientX - rect.left;
-                const cellWidth = rect.width / 7; // 7일
-                const cellIndex = Math.floor(relativeX / cellWidth);
-                
-                if (cellIndex >= 0 && cellIndex < dateCells.length) {
-                  targetCell = dateCells[cellIndex];
-                  break;
-                }
-              }
-            }
-            currentElement = currentElement.parentElement;
-          }
-        }
-        
-        if (targetCell) {
-          const monthView = document.querySelector('.rbc-month-view');
-          if (monthView) {
-            const allCells = Array.from(monthView.querySelectorAll('.rbc-date-cell'));
-            const cellIndex = allCells.indexOf(targetCell);
+        // 클릭된 날짜 계산
+        const monthView = document.querySelector('.rbc-month-view');
+        if (monthView) {
+          const allCells = Array.from(monthView.querySelectorAll('.rbc-date-cell'));
+          const rect = monthView.getBoundingClientRect();
+          
+          // 클릭 위치를 기반으로 날짜 셀 찾기
+          let targetCellIndex = -1;
+          let minDistance = Infinity;
+          
+          allCells.forEach((cell, index) => {
+            const cellRect = cell.getBoundingClientRect();
+            const cellCenterX = cellRect.left + cellRect.width / 2;
+            const cellCenterY = cellRect.top + cellRect.height / 2;
+            const distance = Math.sqrt(
+              Math.pow(e.clientX - cellCenterX, 2) + 
+              Math.pow(e.clientY - cellCenterY, 2)
+            );
             
-            if (cellIndex >= 0) {
-              // 월의 첫 번째 날짜를 기준으로 계산
-              const firstOfMonth = new Date(calendarDate.getFullYear(), calendarDate.getMonth(), 1);
-              const startOfCalendar = new Date(firstOfMonth);
-              startOfCalendar.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
-              
-              const clickedDate = new Date(startOfCalendar);
-              clickedDate.setDate(startOfCalendar.getDate() + cellIndex);
-              
-              onDateCellContextMenu(clickedDate, e);
+            if (distance < minDistance) {
+              minDistance = distance;
+              targetCellIndex = index;
             }
+          });
+          
+          if (targetCellIndex >= 0) {
+            // 월의 첫 번째 날짜를 기준으로 계산
+            const firstOfMonth = new Date(calendarDate.getFullYear(), calendarDate.getMonth(), 1);
+            const startOfCalendar = new Date(firstOfMonth);
+            startOfCalendar.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
+            
+            const clickedDate = new Date(startOfCalendar);
+            clickedDate.setDate(startOfCalendar.getDate() + targetCellIndex);
+            
+            onDateCellContextMenu(clickedDate, e);
           }
         }
       }

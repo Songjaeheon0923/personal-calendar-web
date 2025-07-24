@@ -23,6 +23,7 @@ export function useSchedule() {
   const [editStartTime, setEditStartTime] = useState("");
   const [editEndTime, setEditEndTime] = useState("");
   const [editColor, setEditColor] = useState(CATEGORY_COLORS[0].color);
+  const [editMemo, setEditMemo] = useState(""); // 수정용 메모 상태 추가
 
   // react-big-calendar의 event 포맷으로 변환
   const events = useMemo(() =>
@@ -121,7 +122,7 @@ export function useSchedule() {
               startTime: editStartTime,
               endTime: editEndTime,
               color: editColor,
-              memo: memo
+              memo: editMemo // 수정용 메모 상태 사용
             }
           : schedule
       );
@@ -175,7 +176,7 @@ export function useSchedule() {
     setEditStartTime(schedule.startTime || "");
     setEditEndTime(schedule.endTime || "");
     setEditColor(schedule.color);
-    setMemo(schedule.memo || "");
+    setEditMemo(schedule.memo || ""); // 수정용 메모 상태 사용
   };
 
   return {
@@ -196,6 +197,7 @@ export function useSchedule() {
     editStartTime,
     editEndTime,
     editColor,
+    editMemo, // 수정용 메모 상태 추가
     
     // 상태 업데이트 함수들
     setSelectedDate,
@@ -211,6 +213,7 @@ export function useSchedule() {
     setEditStartTime,
     setEditEndTime,
     setEditColor,
+    setEditMemo, // 수정용 메모 설정 함수 추가
     
     // 액션 함수들
     addSchedule,

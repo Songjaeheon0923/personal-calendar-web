@@ -30,7 +30,7 @@ function ModalContainer({
     if (updates.editStartTime !== undefined) schedule.setEditStartTime(updates.editStartTime);
     if (updates.editEndTime !== undefined) schedule.setEditEndTime(updates.editEndTime);
     if (updates.editColor !== undefined) schedule.setEditColor(updates.editColor);
-    if (updates.memo !== undefined) schedule.setMemo(updates.memo);
+    if (updates.memo !== undefined) schedule.setEditMemo(updates.memo); // 수정용 메모 설정 함수 사용
   };
 
   return (
@@ -85,7 +85,7 @@ function ModalContainer({
           editStartTime: schedule.editStartTime,
           editEndTime: schedule.editEndTime,
           editColor: schedule.editColor,
-          memo: schedule.memo
+          memo: schedule.editMemo // 수정용 메모 상태 사용
         }}
         onFormDataChange={handleEditFormChange}
         onDateInputClick={ui.openMiniCalendar}

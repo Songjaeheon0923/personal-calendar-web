@@ -6,12 +6,16 @@ import Calendar from "./components/Calendar";
 import Sidebar from "./components/Sidebar";
 import ModalContainer from "./components/ModalContainer";
 import "react-big-calendar/lib/css/react-big-calendar.css";
+import { useEffect } from "react";
 
 function App() {
   // 커스텀 훅 사용
   const schedule = useSchedule();
   const ui = useUI();
   const handlers = useCalendarHandlers(schedule, ui);
+
+  // 부분 화면(모바일/태블릿)로 전환 시 사이드바 자동 닫기
+  // 사이드바 상태를 화면 크기 변경에 따라 자동으로 변경하지 않음 (상태 유지)
 
   return (
     <div className="w-screen h-screen bg-gray-100 flex flex-col">

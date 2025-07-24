@@ -19,6 +19,18 @@ function AddScheduleModal({
   const startTimeRef = useRef(null);
   const endTimeRef = useRef(null);
 
+  // 모달이 열렸을 때 제목 입력란에 자동 포커스
+  useEffect(() => {
+    if (isOpen && titleRef.current) {
+      // 약간의 지연을 두어 모달 애니메이션이 완료된 후 포커스
+      const timer = setTimeout(() => {
+        titleRef.current?.focus();
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   // 외부 클릭 감지
   useEffect(() => {
     const handleClickOutside = (event) => {

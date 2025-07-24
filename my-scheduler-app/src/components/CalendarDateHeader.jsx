@@ -19,7 +19,7 @@ function CalendarDateHeader({ label, date }) {
   }
   
   return (
-    <div className={`flex justify-end pr-2 pt-2 select-none ${colorClass} ${fontWeight} text-lg`}>
+    <div className={`flex justify-end pr-2 pt-1 select-none ${colorClass} ${fontWeight} text-lg`}>
       {label}
     </div>
   );

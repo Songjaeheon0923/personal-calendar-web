@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 
 function DateCellContextMenu({ 
   show,
@@ -9,59 +9,98 @@ function DateCellContextMenu({
   onClose 
 }) {
   const menuRef = useRef(null);
+  const [adjustedPosition, setAdjustedPosition] = useState(null);
+
+  // 위치 조정 로직
+  const adjustPosition = useCallback(() => {
+    if (!show || !menuRef.current || x === undefined || y === undefined) return;
+
+    const menu = menuRef.current;
+    const menuRect = menu.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    let newX = x;
+    let newY = y;
+
+    if (x + menuRect.width > viewportWidth) {
+      newX = viewportWidth - menuRect.width - 10;
+    }
+    if (y + menuRect.height > viewportHeight) {
+      newY = viewportHeight - menuRect.height - 10;
+    }
+    if (newX < 10) newX = 10;
+    if (newY < 10) newY = 10;
+
+    if (newX !== x || newY !== y) {
+      setAdjustedPosition({ x: newX, y: newY });
+    } else {
+      setAdjustedPosition(null);
+    }
+  }, [show, x, y]);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        // 다른 모든 동작을 차단하고 컨텍스트 메뉴만 닫기
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        onClose();
-      }
-    };
-
-    const handleScroll = () => {
-      onClose();
-    };
-
-    // 모든 마우스 이벤트를 차단하는 핸들러
-    const blockAllEvents = (e) => {
-      if (show && menuRef.current && !menuRef.current.contains(e.target)) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        onClose();
-      }
-    };
-
     if (show) {
-      // 클릭 이벤트들을 최고 우선순위로 등록하여 다른 모든 이벤트 차단
-      document.addEventListener('click', handleClickOutside, true);
-      document.addEventListener('mousedown', blockAllEvents, true);
-      document.addEventListener('mouseup', blockAllEvents, true);
-      document.addEventListener('contextmenu', blockAllEvents, true);
-      document.addEventListener('scroll', handleScroll, true);
+      requestAnimationFrame(adjustPosition);
+    } else {
+      setAdjustedPosition(null);
     }
+  }, [show, adjustPosition]);
+
+  useEffect(() => {
+    if (!show) return;
+
+    let timeoutId;
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(adjustPosition, 100);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearTimeout(timeoutId);
+    };
+  }, [show, adjustPosition]);
+
+  useEffect(() => {
+    if (!show) return;
+
+    const handleOutsideInteraction = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+        onClose();
+      }
+    };
+
+    const handleScroll = () => onClose();
+
+    document.addEventListener('click', handleOutsideInteraction, true);
+    document.addEventListener('mousedown', handleOutsideInteraction, true);
+    document.addEventListener('contextmenu', handleOutsideInteraction, true);
+    document.addEventListener('scroll', handleScroll, true);
 
     return () => {
-      document.removeEventListener('click', handleClickOutside, true);
-      document.removeEventListener('mousedown', blockAllEvents, true);
-      document.removeEventListener('mouseup', blockAllEvents, true);
-      document.removeEventListener('contextmenu', blockAllEvents, true);
+      document.removeEventListener('click', handleOutsideInteraction, true);
+      document.removeEventListener('mousedown', handleOutsideInteraction, true);
+      document.removeEventListener('contextmenu', handleOutsideInteraction, true);
       document.removeEventListener('scroll', handleScroll, true);
     };
   }, [show, onClose]);
 
   if (!show) return null;
 
+  const finalPosition = adjustedPosition || { x, y };
+
   return (
     <button
       ref={menuRef}
       className="fixed px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium flex items-center justify-center"
       style={{
-        left: x,
-        top: y,
+        left: finalPosition.x,
+        top: finalPosition.y,
         zIndex: 99999,
       }}
       onClick={(e) => {
@@ -69,8 +108,7 @@ function DateCellContextMenu({
         onAddSchedule(date);
       }}
     >
-      <span className="mr-2">+</span>
-      새 일정 추가
+      + 일정 추가
     </button>
   );
 }

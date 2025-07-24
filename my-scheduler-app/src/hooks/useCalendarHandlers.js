@@ -59,8 +59,12 @@ export function useCalendarHandlers(schedule, ui) {
 
   // 날짜 셀 컨텍스트 메뉴에서 일정 추가 클릭
   const handleAddScheduleFromDateContext = (date) => {
+    // 먼저 폼을 완전히 초기화
+    resetAddForm();
+    
     // 선택된 날짜로 설정
     schedule.setSelectedDate(date);
+    schedule.setEndDate(date); // 종료 날짜도 동일하게 설정
     
     // 해당 날짜의 사이드바 열기
     ui.openSidebar(date, schedule.schedules);
@@ -169,15 +173,21 @@ export function useCalendarHandlers(schedule, ui) {
 
   // 새 일정 추가 버튼 클릭
   const handleOpenAddModal = () => {
-    schedule.setSelectedDate(new Date());
+    // 먼저 폼을 완전히 초기화
     resetAddForm();
+    // 그 다음 오늘 날짜로 설정
+    schedule.setSelectedDate(new Date());
+    schedule.setEndDate(new Date()); // 종료 날짜도 오늘로 설정
     ui.setModalOpen(true);
   };
 
   // 사이드바에서 일정 추가 버튼 클릭 (특정 날짜로 설정)
   const handleAddScheduleFromSidebar = () => {
-    schedule.setSelectedDate(ui.sidebarDate);
+    // 먼저 폼을 완전히 초기화
     resetAddForm();
+    // 그 다음 선택된 날짜로 설정
+    schedule.setSelectedDate(ui.sidebarDate);
+    schedule.setEndDate(ui.sidebarDate); // 종료 날짜도 동일하게 설정
     ui.setModalOpen(true);
   };
 

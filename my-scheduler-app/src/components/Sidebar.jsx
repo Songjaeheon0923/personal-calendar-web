@@ -14,58 +14,15 @@ function Sidebar({
   onDeleteSchedule,
   onAddSchedule
 }) {
-  const [contextMenu, setContextMenu] = useState({ show: false, x: 0, y: 0, scheduleId: null });
-  const contextMenuRef = useRef(null);
-
-  // 컨텍스트 메뉴 외부 클릭 감지
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target)) {
-        setContextMenu({ show: false, x: 0, y: 0, scheduleId: null });
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  // 우클릭 핸들러
-  const handleContextMenu = (e, schedule) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const rect = e.currentTarget.getBoundingClientRect();
-    setContextMenu({
-      show: true,
-      x: e.clientX,
-      y: e.clientY,
-      scheduleId: schedule.id,
-      schedule: schedule
-    });
-  };
-
-  // 컨텍스트 메뉴에서 수정 클릭
-  const handleEditFromContext = () => {
-    onEditSchedule(contextMenu.schedule);
-    setContextMenu({ show: false, x: 0, y: 0, scheduleId: null });
-  };
-
-  // 컨텍스트 메뉴에서 삭제 클릭
-  const handleDeleteFromContext = () => {
-    onDeleteSchedule(contextMenu.scheduleId);
-    setContextMenu({ show: false, x: 0, y: 0, scheduleId: null });
-  };
-  if (!showSidebar) return null;
-
   return (
     <>
       {/* 사이드바 */}
-      <div className={`fixed top-0 right-0 h-full w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-40 ${
-        showSidebar ? 'translate-x-0' : 'translate-x-full'
+      <div className={`fixed top-0 right-0 h-full w-[70vw] max-w-[220px] sm:w-[50vw] sm:max-w-[220px] md:w-96 md:max-w-md bg-white shadow-2xl transform transition-all duration-300 ease-in-out z-40 ${
+        showSidebar ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
       }`}>
-        <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div className={`p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 transform transition-all duration-400 ease-out ${
+          showSidebar ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0'
+        }`}>
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-xl font-bold text-gray-800">
@@ -93,7 +50,9 @@ function Sidebar({
           </button>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className={`flex-1 overflow-y-auto p-6 transform transition-all duration-400 ease-out delay-75 ${
+          showSidebar ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
+        }`}>
           {sidebarSchedules.length > 0 ? (
             <div className="space-y-3">
               {sidebarSchedules.map((schedule) => (
@@ -101,7 +60,7 @@ function Sidebar({
                   <div 
                     className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
                     onClick={() => onToggleExpand(schedule.id)}
-                    onContextMenu={(e) => handleContextMenu(e, schedule)}
+                    // ...existing code...
                     style={{
                       borderLeft: `4px solid ${schedule.color}`,
                     }}
@@ -232,38 +191,17 @@ function Sidebar({
         </div>
       </div>
       
-      {/* 컨텍스트 메뉴 */}
-      {contextMenu.show && (
-        <div
-          ref={contextMenuRef}
-          className="fixed bg-white border border-gray-200 rounded-lg shadow-xl py-2 z-50 min-w-32"
-          style={{
-            left: contextMenu.x,
-            top: contextMenu.y,
-          }}
-        >
-          <button
-            className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm flex items-center gap-2"
-            onClick={handleEditFromContext}
-          >
-            <span className="text-blue-500">✏️</span>
-            수정
-          </button>
-          <button
-            className="w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors text-sm flex items-center gap-2 text-red-600"
-            onClick={handleDeleteFromContext}
-          >
-            <span className="text-red-500">🗑️</span>
-            삭제
-          </button>
-        </div>
-      )}
+      {/* ...existing code... */}
       
       {/* 사이드바 오버레이 */}
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-30 z-30"
-        onClick={onClose}
-      ></div>
+      {showSidebar && (
+        <div 
+          className={`fixed inset-0 bg-black transition-opacity duration-300 ease-in-out z-30 ${
+            showSidebar ? 'opacity-30' : 'opacity-0'
+          }`}
+          onClick={onClose}
+        />
+      )}
     </>
   );
 }

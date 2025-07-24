@@ -136,27 +136,19 @@ body {
   background: #a8a8a8;
 }
 
-/* react-big-calendar 날짜 색상 강제 적용 */
+/* react-big-calendar 날짜 셀 기본 설정 */
 .rbc-date-cell {
   text-align: right !important;
+  padding: 4px !important;
+  position: relative !important;
+}
+
+/* CalendarDateHeader 강제 스타일 적용 */
+.rbc-date-cell > div {
   padding-right: 8px !important;
-  padding-top: 8px !important;
+  padding-top: 4px !important;
+  display: flex !important;
+  justify-content: flex-end !important;
 }
 
-/* react-big-calendar 월 뷰에서 요일별 색상 적용 */
-.rbc-month-view .rbc-month-row .rbc-date-cell:nth-child(1) {
-  color: #ef4444 !important; /* 일요일 - 빨간색 */
-}
-
-.rbc-month-view .rbc-month-row .rbc-date-cell:nth-child(7) {
-  color: #2563eb !important; /* 토요일 - 파란색 */
-}
-
-/* 각 주의 첫 번째와 마지막 셀에 색상 적용 */
-.rbc-date-cell:first-child {
-  color: #ef4444 !important; /* 일요일 */
-}
-
-.rbc-date-cell:last-child {
-  color: #2563eb !important; /* 토요일 */
-}
+/* react-big-calendar 월 뷰에서 요일별 색상은 CalendarDateHeader 컴포넌트에서 처리 */

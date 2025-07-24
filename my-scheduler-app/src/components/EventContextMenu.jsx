@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 function EventContextMenu({ 
   show,
@@ -11,6 +11,64 @@ function EventContextMenu({
 }) {
   console.log('EventContextMenu render:', { show, x, y, event }); // 디버깅용
   const menuRef = useRef(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
+  // 초기 위치 설정 및 props 변경 시 업데이트
+  useEffect(() => {
+    if (x !== undefined && y !== undefined) {
+      setPosition({ x, y });
+    }
+  }, [x, y]);
+
+  // 화면 크기 변경 시 위치 조정
+  useEffect(() => {
+    const handleResize = () => {
+      if (!show || !menuRef.current) return;
+
+      const menu = menuRef.current;
+      const menuRect = menu.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+
+      setPosition(currentPos => {
+        let newX = currentPos.x;
+        let newY = currentPos.y;
+
+        // 오른쪽 경계를 벗어나는 경우
+        if (currentPos.x + menuRect.width > viewportWidth) {
+          newX = viewportWidth - menuRect.width - 10; // 10px 마진
+        }
+
+        // 하단 경계를 벗어나는 경우
+        if (currentPos.y + menuRect.height > viewportHeight) {
+          newY = viewportHeight - menuRect.height - 10; // 10px 마진
+        }
+
+        // 왼쪽 경계를 벗어나는 경우
+        if (newX < 10) {
+          newX = 10;
+        }
+
+        // 상단 경계를 벗어나는 경우
+        if (newY < 10) {
+          newY = 10;
+        }
+
+        // 변경이 있을 때만 새 객체 반환
+        if (newX !== currentPos.x || newY !== currentPos.y) {
+          return { x: newX, y: newY };
+        }
+        return currentPos;
+      });
+    };
+
+    if (show) {
+      window.addEventListener('resize', handleResize);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }
+  }, [show]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -61,8 +119,8 @@ function EventContextMenu({
       ref={menuRef}
       className="fixed bg-white rounded-lg shadow-xl border border-gray-300 py-2 min-w-32"
       style={{
-        left: x,
-        top: y,
+        left: position.x > 0 ? position.x : x,
+        top: position.y > 0 ? position.y : y,
         zIndex: 9999,
       }}
     >
