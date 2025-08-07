@@ -71,11 +71,6 @@ function EventContextMenu({
   }, [show]);
 
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        onClose();
-      }
-    };
 
     const handleScroll = () => {
       onClose();

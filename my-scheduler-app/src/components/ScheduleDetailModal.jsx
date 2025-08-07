@@ -309,7 +309,7 @@ function ScheduleDetailModal({
         
         {/* 미니 달력 */}
         {showMiniCalendar && (
-          <MiniCalendar {...miniCalendarProps} />
+          <MiniCalendar {...miniCalendarProps} mode="edit" />
         )}
       </div>
     </div>

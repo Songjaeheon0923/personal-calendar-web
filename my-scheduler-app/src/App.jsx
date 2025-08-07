@@ -6,7 +6,6 @@ import Calendar from "./components/Calendar";
 import Sidebar from "./components/Sidebar";
 import ModalContainer from "./components/ModalContainer";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { useEffect } from "react";
 
 function App() {
   // 커스텀 훅 사용

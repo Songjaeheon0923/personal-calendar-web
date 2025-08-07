@@ -104,6 +104,10 @@ temp/
 *.sln
 *.sw?
 
+# Claude Code files
+.claude/
+CLAUDE.md
+
 # Development documentation
 TECHNICAL_DOCUMENTATION.md
 수정&개선.txt

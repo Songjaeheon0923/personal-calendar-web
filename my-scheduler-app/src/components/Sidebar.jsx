@@ -1,40 +1,55 @@
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { renderContentWithLinks } from "../utils/textUtils";
 
 function Sidebar({ 
   showSidebar, 
   sidebarDate, 
-  sidebarSchedules, schedules,
+  schedules,
   expandedEventIds,
   onClose,
   onToggleExpand,
-  onEditSchedule,
-  onDeleteSchedule,
   onAddSchedule
 }) {
   const [filteredSchedules, setFilteredSchedules] = useState([]);
 
+  const filterAndSortSchedules = useCallback((schedules, targetDate) => {
+    if (!Array.isArray(schedules) || !targetDate) return [];
+    
+    try {
+      const targetDateStr = format(targetDate, 'yyyy-MM-dd');
+      return schedules.filter(schedule => {
+        try {
+          const start = new Date(schedule.date);
+          const end = schedule.endDate ? new Date(schedule.endDate) : start;
+          const target = new Date(targetDateStr);
+          return target >= start && target <= end;
+        } catch (error) {
+          console.error('Error filtering schedule in sidebar:', schedule, error);
+          return false;
+        }
+      }).sort((a, b) => {
+        if (!a.startTime && !b.startTime) return 0;
+        if (!a.startTime) return 1;
+        if (!b.startTime) return -1;
+        return a.startTime.localeCompare(b.startTime);
+      });
+    } catch (error) {
+      console.error('Error in filterAndSortSchedules:', error);
+      return [];
+    }
+  }, []);
+
   useEffect(() => {
-    if (!showSidebar || !sidebarDate || !schedules) {
+    if (!showSidebar || !sidebarDate) {
       setFilteredSchedules([]);
       return;
     }
-    const sidebarDateStr = format(sidebarDate, 'yyyy-MM-dd');
-    const result = schedules.filter(schedule => {
-      const start = new Date(schedule.date);
-      const end = schedule.endDate ? new Date(schedule.endDate) : start;
-      const target = new Date(sidebarDateStr);
-      return target >= start && target <= end;
-    }).sort((a, b) => {
-      if (!a.startTime && !b.startTime) return 0;
-      if (!a.startTime) return 1;
-      if (!b.startTime) return -1;
-      return a.startTime.localeCompare(b.startTime);
-    });
+    
+    const result = filterAndSortSchedules(schedules, sidebarDate);
     setFilteredSchedules(result);
-  }, [showSidebar, sidebarDate, schedules]);
+  }, [showSidebar, sidebarDate, schedules, filterAndSortSchedules]);
 
   return (
     <>
@@ -84,7 +99,7 @@ function Sidebar({
                     onClick={() => onToggleExpand(schedule.id)}
                     // ...existing code...
                     style={{
-                      borderLeft: `4px solid ${schedule.color}`,
+                      borderLeft: `4px solid ${schedule.color || '#ffe066'}`,
                     }}
                   >
                     <div className="flex justify-between items-center">
@@ -114,7 +129,7 @@ function Sidebar({
                       <div className="flex items-center gap-2">
                         <div 
                           className="w-4 h-4 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: schedule.color }}
+                          style={{ backgroundColor: schedule.color || '#ffe066' }}
                         ></div>
                         <span className={`text-gray-400 transition-transform duration-200 ${
                           expandedEventIds.includes(schedule.id) ? 'rotate-180' : ''
@@ -141,7 +156,7 @@ function Sidebar({
                                   <div className="w-2 h-2 rounded-full bg-yellow-300 opacity-60"></div>
                                   <div className="w-2 h-2 rounded-full bg-green-300 opacity-60"></div>
                                 </div>
-                                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: schedule.color, opacity: 0.7 }}></div>
+                                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: schedule.color || '#ffe066', opacity: 0.7 }}></div>
                               </div>
                               {/* 종이 구멍 효과 */}
                               <div className="absolute left-3 top-0 bottom-0 flex flex-col justify-around py-1">
@@ -174,7 +189,7 @@ function Sidebar({
                                   <div className="w-2 h-2 rounded-full bg-gray-300 opacity-60"></div>
                                   <div className="w-2 h-2 rounded-full bg-gray-300 opacity-60"></div>
                                 </div>
-                                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: schedule.color, opacity: 0.7 }}></div>
+                                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: schedule.color || '#ffe066', opacity: 0.7 }}></div>
                               </div>
                               {/* 종이 구멍 효과 */}
                               <div className="absolute left-3 top-0 bottom-0 flex flex-col justify-around py-1">

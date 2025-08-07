@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
-function MiniCalendar({ selectedDate, onDateSelect, onClose, position }) {
+function MiniCalendar({ selectedDate, onDateSelect, onClose, position, mode = 'add' }) {
   const [currentDate, setCurrentDate] = useState(selectedDate ? new Date(selectedDate) : new Date());
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -21,18 +21,21 @@ function MiniCalendar({ selectedDate, onDateSelect, onClose, position }) {
   });
   const calendarRef = useRef(null);
 
-  // 달력 날짜들 생성
-  const monthStart = startOfMonth(currentDate);
-  const monthEnd = endOfMonth(currentDate);
-  const startDate = startOfWeek(monthStart, { weekStartsOn: 0 });
-  const endDate = endOfWeek(monthEnd, { weekStartsOn: 0 });
+  // 달력 날짜들 생성 (메모이제이션으로 성능 최적화)
+  const dates = useMemo(() => {
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
+    const startDate = startOfWeek(monthStart, { weekStartsOn: 0 });
+    const endDate = endOfWeek(monthEnd, { weekStartsOn: 0 });
 
-  const dates = [];
-  let day = startDate;
-  while (day <= endDate) {
-    dates.push(new Date(day));
-    day = addDays(day, 1);
-  }
+    const dates = [];
+    let day = startDate;
+    while (day <= endDate) {
+      dates.push(new Date(day));
+      day = addDays(day, 1);
+    }
+    return dates;
+  }, [currentDate]);
 
   // 날짜 클릭 핸들러
   const handleDateClick = (date) => {
@@ -55,29 +58,41 @@ function MiniCalendar({ selectedDate, onDateSelect, onClose, position }) {
     if (e.target.closest('.drag-handle') && !e.target.closest('button')) {
       e.preventDefault();
       e.stopPropagation();
-      const rect = calendarRef.current.getBoundingClientRect();
-      const modalContainer = calendarRef.current.closest('form') || calendarRef.current.closest('[data-modal]');
-      setIsDragging(true);
-      setHasBeenDragged(true); // 드래그되었음을 표시
-      setDragStart({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      });
-      // 항상 드래그 시작 시 실제 렌더링 위치(px)로 변환
-      let topPx = rect.top;
-      let leftPx = rect.left;
-      if (modalContainer) {
-        const modalRect = modalContainer.getBoundingClientRect();
-        topPx = rect.top - modalRect.top;
-        leftPx = rect.left - modalRect.left;
+      
+      if (mode === 'edit') {
+        // 개선된 드래그 로직 (수정 모달)
+        let currentTop = 0, currentLeft = 0;
+        if (calendarRef.current) {
+          const style = window.getComputedStyle(calendarRef.current);
+          currentTop = parseInt(style.top, 10) || 0;
+          currentLeft = parseInt(style.left, 10) || 0;
+        }
+        setIsDragging(true);
+        setHasBeenDragged(true); // 드래그되었음을 표시
+        setDragStart({
+          x: e.clientX - currentLeft,
+          y: e.clientY - currentTop
+        });
+        setCalendarPosition(prev => ({
+          ...prev,
+          transform: 'none'
+        }));
+      } else {
+        // 기존 로직 (생성 모달)
+        const rect = calendarRef.current.getBoundingClientRect();
+        setIsDragging(true);
+        setHasBeenDragged(true);
+        setDragStart({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        });
+        setCalendarPosition(prev => ({
+          ...prev,
+          transform: 'none'
+        }));
       }
-      setCalendarPosition({
-        top: `${topPx}px`,
-        left: `${leftPx}px`,
-        transform: 'none'
-      });
     }
-  }, []);
+  }, [mode]);
 
   // 드래그 중
   const handleMouseMove = useCallback((e) => {

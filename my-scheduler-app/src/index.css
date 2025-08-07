@@ -152,3 +152,64 @@ body {
 }
 
 /* react-big-calendar 월 뷰에서 요일별 색상은 CalendarDateHeader 컴포넌트에서 처리 */
+
+/* 날짜 셀 호버 효과 - 이벤트와 독립적으로 동작 */
+.rbc-month-row .rbc-day-bg:hover {
+  background-color: #f0f9ff !important;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+/* 오늘 날짜 호버 시 더 진한 색상 */
+.rbc-month-row .rbc-today:hover {
+  background-color: #bae6fd !important;
+}
+
+/* 이전/다음 달 날짜 호버 */
+.rbc-month-row .rbc-off-range-bg:hover {
+  background-color: #f8fafc !important;
+}
+
+/* 주말 날짜 호버 효과 (일요일, 토요일) */
+.rbc-month-row .rbc-day-bg:first-child:hover,
+.rbc-month-row .rbc-day-bg:last-child:hover {
+  background-color: #fef3f2 !important;
+}
+
+/* 날짜 헤더 영역은 투명 배경 유지 */
+.rbc-month-row .rbc-day-bg:hover .rbc-date-cell {
+  background-color: transparent !important;
+}
+
+/* 커스텀 이벤트 바는 호버 시에도 배경에 영향받지 않도록 */
+.custom-event-bar {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* 커스텀 날짜 셀 및 이벤트 바 스타일 */
+.custom-date-cell {
+  height: 100% !important;
+  position: relative !important;
+  padding: 0 !important;
+}
+
+.custom-event-bar {
+  transition: all 0.2s ease;
+}
+
+.custom-event-bar:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+/* 기본 react-big-calendar 이벤트 스타일 비활성화 */
+.rbc-event {
+  display: none !important; /* 기본 이벤트 렌더링 숨기기 */
+}
+
+.rbc-events-container {
+  display: none !important; /* 기본 이벤트 컨테이너 숨기기 */
+}

@@ -51,7 +51,6 @@ export default function YearMonthPicker({
   const today = new Date();
   const currentYear = today.getFullYear();
   const currentMonth = today.getMonth(); // 0-based (0=1월)
-  const currentDate = today.getDate();
 
   return (
     <div 

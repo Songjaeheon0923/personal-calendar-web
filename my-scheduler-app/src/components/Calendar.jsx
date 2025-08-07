@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Calendar as BigCalendar } from "react-big-calendar";
 import CalendarDateHeader from "./CalendarDateHeader";
 import CalendarToolbar from "./CalendarToolbar";
@@ -48,41 +48,40 @@ function Calendar({
         e.preventDefault();
         e.stopPropagation();
         
-        // 클릭된 날짜 계산
+        // react-big-calendar 구조 기반 정확한 날짜 감지
         const monthView = document.querySelector('.rbc-month-view');
         if (monthView) {
-          const allCells = Array.from(monthView.querySelectorAll('.rbc-date-cell'));
-          const rect = monthView.getBoundingClientRect();
+          // 월별 뷰에서는 각 주(row)가 .rbc-month-row 클래스를 가짐
+          const monthRows = Array.from(monthView.querySelectorAll('.rbc-month-row'));
           
-          // 클릭 위치를 기반으로 날짜 셀 찾기
-          let targetCellIndex = -1;
-          let minDistance = Infinity;
+          let targetDate = null;
           
-          allCells.forEach((cell, index) => {
-            const cellRect = cell.getBoundingClientRect();
-            const cellCenterX = cellRect.left + cellRect.width / 2;
-            const cellCenterY = cellRect.top + cellRect.height / 2;
-            const distance = Math.sqrt(
-              Math.pow(e.clientX - cellCenterX, 2) + 
-              Math.pow(e.clientY - cellCenterY, 2)
-            );
+          for (let rowIndex = 0; rowIndex < monthRows.length; rowIndex++) {
+            const row = monthRows[rowIndex];
+            const rowRect = row.getBoundingClientRect();
             
-            if (distance < minDistance) {
-              minDistance = distance;
-              targetCellIndex = index;
+            // 클릭이 이 주(row) 내에 있는지 확인
+            if (e.clientY >= rowRect.top && e.clientY <= rowRect.bottom) {
+              // 이 주 내에서 정확한 날짜 셀 찾기
+              // .rbc-date-cell은 날짜 헤더, 실제 셀은 전체 영역을 차지
+              const cellWidth = rowRect.width / 7; // 7일
+              const clickX = e.clientX - rowRect.left;
+              const dayIndex = Math.floor(clickX / cellWidth);
+              
+              // 날짜 계산: 주의 시작일 + 요일 인덱스
+              const firstOfMonth = new Date(calendarDate.getFullYear(), calendarDate.getMonth(), 1);
+              const startOfCalendar = new Date(firstOfMonth);
+              startOfCalendar.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
+              
+              targetDate = new Date(startOfCalendar);
+              targetDate.setDate(startOfCalendar.getDate() + (rowIndex * 7) + dayIndex);
+              
+              break;
             }
-          });
+          }
           
-          if (targetCellIndex >= 0) {
-            // 월의 첫 번째 날짜를 기준으로 계산
-            const firstOfMonth = new Date(calendarDate.getFullYear(), calendarDate.getMonth(), 1);
-            const startOfCalendar = new Date(firstOfMonth);
-            startOfCalendar.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
-            
-            const clickedDate = new Date(startOfCalendar);
-            clickedDate.setDate(startOfCalendar.getDate() + targetCellIndex);
-            
-            onDateCellContextMenu(clickedDate, e);
+          if (targetDate) {
+            onDateCellContextMenu(targetDate, e);
           }
         }
       }
@@ -93,74 +92,138 @@ function Calendar({
       document.removeEventListener('contextmenu', handleDateCellRightClick);
     };
   }, [onDateCellContextMenu, calendarDate]);
-  // 커스텀 이벤트 컴포넌트
-  const CustomEvent = ({ event }) => {
-    const handleContextMenu = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('Event context menu triggered for:', event); // 디버깅용
-      onEventContextMenu(event, e);
-    };
+  // 날짜 셀별 이벤트 렌더링을 위한 커스텀 MonthDateHeader
+  const CustomMonthDateHeader = ({ date, drilldownView, onDrillDown }) => {
+    // 해당 날짜의 이벤트들만 필터링
+    const dateEvents = events.filter(event => {
+      const eventStart = new Date(event.start);
+      const eventEnd = new Date(event.end);
+      const currentDate = new Date(date);
+      
+      // 날짜만 비교 (시간 제외)
+      const isEventDate = currentDate >= new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate()) &&
+                         currentDate <= new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate());
+      
+      return isEventDate;
+    });
 
-    // 시작 시간 포맷팅
+    // 시간 포맷팅 함수
     const formatTime = (timeString) => {
       if (!timeString) return '';
-      return timeString.slice(0, 5); // HH:MM 형식으로 잘라내기
+      return timeString.slice(0, 5);
     };
 
-    // 이벤트 객체에서 시간 정보 가져오기
-    const startTime = formatTime(event.startTime);
-    
-    // 여러 날짜에 걸친 일정인지 확인
-    const isMultiDay = event.start.toDateString() !== event.end.toDateString();
-
     return (
-      <div
-        className="rbc-event-content"
-        title={`${startTime ? startTime + ' ' : ''}${event.title}`}
-        onContextMenu={handleContextMenu}
-        style={{ 
-          width: '100%', 
-          height: '100%',
-          cursor: 'pointer',
-          padding: '2px 4px',
-          fontSize: '13px',
-          lineHeight: '1.3',
-          overflow: 'hidden',
-          display: 'flex',
-          justifyContent: isMultiDay ? 'center' : 'space-between', // 여러 날짜면 중앙 정렬
-          alignItems: 'center'
-        }}
-      >
-        <span style={{ 
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-          flex: 1,
-          marginRight: startTime && !isMultiDay ? '4px' : '0', // 여러 날짜면 마진 제거
-          textAlign: isMultiDay ? 'center' : 'left' // 여러 날짜면 중앙 정렬
+      <div className="custom-date-cell" style={{ position: 'relative', height: '100%' }}>
+        {/* 날짜 헤더 */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '4px', 
+          right: '8px', 
+          fontSize: '14px', 
+          fontWeight: '600',
+          color: date.getMonth() === calendarDate.getMonth() ? '#374151' : '#9ca3af',
+          backgroundColor: date.toDateString() === new Date().toDateString() ? '#dbeafe' : 'transparent',
+          padding: '2px 6px',
+          borderRadius: '4px'
         }}>
-          {event.title}
-        </span>
-        {startTime && !isMultiDay && ( // 여러 날짜 일정에서는 시간 숨기기
-          <span style={{ 
-            fontWeight: '600',
-            opacity: '0.9',
-            fontSize: '12px',
-            flexShrink: 0
-          }}>
-            {startTime}
-          </span>
-        )}
+          {date.getDate()}
+        </div>
+        
+        {/* 이벤트들을 날짜 셀 내부에 렌더링 */}
+        <div style={{ 
+          position: 'absolute',
+          top: '26px',
+          left: '1px',
+          right: '1px',
+          bottom: '4px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px'
+        }}>
+          {dateEvents.slice(0, 3).map((event, index) => {
+            const startTime = formatTime(event.startTime);
+            const isMultiDay = event.start.toDateString() !== event.end.toDateString();
+            
+            return (
+              <div
+                key={`${event.id}-${index}`}
+                className="custom-event-bar"
+                title={`${startTime ? startTime + ' ' : ''}${event.title}`}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onEventContextMenu(event, e);
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!dateCellContextMenuActive && !eventContextMenuActive) {
+                    onEventSelect(event);
+                  }
+                }}
+                style={{
+                  backgroundColor: event.color || '#3b82f6',
+                  color: 'white',
+                  borderRadius: '4px',
+                  padding: '6px 8px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  height: '28px',
+                  minHeight: '28px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: isMultiDay ? 'center' : 'space-between'
+                }}
+              >
+                <span style={{ 
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  flex: 1,
+                  textAlign: isMultiDay ? 'center' : 'left'
+                }}>
+                  {event.title}
+                </span>
+                {startTime && !isMultiDay && (
+                  <span style={{ 
+                    fontSize: '12px',
+                    opacity: '0.9',
+                    marginLeft: '4px',
+                    flexShrink: 0
+                  }}>
+                    {startTime}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+          {dateEvents.length > 3 && (
+            <div style={{
+              fontSize: '10px',
+              color: '#6b7280',
+              textAlign: 'center',
+              padding: '1px'
+            }}>
+              +{dateEvents.length - 3}개 더
+            </div>
+          )}
+        </div>
       </div>
     );
   };
 
-  // 커스텀 컴포넌트 설정
-  const components = {
+  // 빈 이벤트 컴포넌트 (이벤트를 날짜 셀에서 직접 렌더링하므로 불필요)
+  const EmptyEvent = () => null;
+
+  // 커스텀 컴포넌트 설정 (날짜 셀 레벨 이벤트 렌더링)
+  const components = useMemo(() => ({
     month: {
-      dateHeader: CalendarDateHeader,
-      event: CustomEvent,
+      dateHeader: CustomMonthDateHeader,
+      event: EmptyEvent, // 기본 이벤트 렌더링 비활성화
     },
     toolbar: (props) => (
       <CalendarToolbar 
@@ -170,7 +233,7 @@ function Calendar({
         disabled={dateCellContextMenuActive || eventContextMenuActive}
       />
     ),
-  };
+  }), [dateCellContextMenuActive, eventContextMenuActive, onOpenMonthPicker, onAddSchedule, CustomMonthDateHeader, events, calendarDate]);
 
   return (
     <div className="flex-1 bg-white rounded-xl shadow-md overflow-hidden">

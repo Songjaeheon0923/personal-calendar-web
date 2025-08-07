@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { useCallback } from "react";
 import YearMonthPicker from "./YearMonthPicker";
 import MiniCalendar from "./MiniCalendar";
 import AddScheduleModal from "./AddScheduleModal";
@@ -12,26 +13,34 @@ function ModalContainer({
   handlers 
 }) {
   // 폼 데이터 변경 핸들러 - 추가 모달용
-  const handleAddFormChange = (updates) => {
-    if (updates.title !== undefined) schedule.setTitle(updates.title);
-    if (updates.selectedDate !== undefined) schedule.setSelectedDate(updates.selectedDate);
-    if (updates.endDate !== undefined) schedule.setEndDate(updates.endDate);
-    if (updates.startTime !== undefined) schedule.setStartTime(updates.startTime);
-    if (updates.endTime !== undefined) schedule.setEndTime(updates.endTime);
-    if (updates.color !== undefined) schedule.setColor(updates.color);
-    if (updates.memo !== undefined) schedule.setMemo(updates.memo);
-  };
+  const handleAddFormChange = useCallback((updates) => {
+    try {
+      if (updates.title !== undefined) schedule.setTitle(updates.title);
+      if (updates.selectedDate !== undefined) schedule.setSelectedDate(updates.selectedDate);
+      if (updates.endDate !== undefined) schedule.setEndDate(updates.endDate);
+      if (updates.startTime !== undefined) schedule.setStartTime(updates.startTime);
+      if (updates.endTime !== undefined) schedule.setEndTime(updates.endTime);
+      if (updates.color !== undefined) schedule.setColor(updates.color);
+      if (updates.memo !== undefined) schedule.setMemo(updates.memo);
+    } catch (error) {
+      console.error('Error updating add form data:', error);
+    }
+  }, [schedule]);
 
   // 폼 데이터 변경 핸들러 - 수정 모달용
-  const handleEditFormChange = (updates) => {
-    if (updates.editTitle !== undefined) schedule.setEditTitle(updates.editTitle);
-    if (updates.editDate !== undefined) schedule.setEditDate(updates.editDate);
-    if (updates.editEndDate !== undefined) schedule.setEditEndDate(updates.editEndDate);
-    if (updates.editStartTime !== undefined) schedule.setEditStartTime(updates.editStartTime);
-    if (updates.editEndTime !== undefined) schedule.setEditEndTime(updates.editEndTime);
-    if (updates.editColor !== undefined) schedule.setEditColor(updates.editColor);
-    if (updates.memo !== undefined) schedule.setEditMemo(updates.memo); // 수정용 메모 설정 함수 사용
-  };
+  const handleEditFormChange = useCallback((updates) => {
+    try {
+      if (updates.editTitle !== undefined) schedule.setEditTitle(updates.editTitle);
+      if (updates.editDate !== undefined) schedule.setEditDate(updates.editDate);
+      if (updates.editEndDate !== undefined) schedule.setEditEndDate(updates.editEndDate);
+      if (updates.editStartTime !== undefined) schedule.setEditStartTime(updates.editStartTime);
+      if (updates.editEndTime !== undefined) schedule.setEditEndTime(updates.editEndTime);
+      if (updates.editColor !== undefined) schedule.setEditColor(updates.editColor);
+      if (updates.memo !== undefined) schedule.setEditMemo(updates.memo);
+    } catch (error) {
+      console.error('Error updating edit form data:', error);
+    }
+  }, [schedule]);
 
   return (
     <>
@@ -52,13 +61,13 @@ function ModalContainer({
         onClose={() => ui.setModalOpen(false)}
         onSubmit={handlers.handleAddSchedule}
         formData={{
-          title: schedule.title,
+          title: schedule.title || "",
           selectedDate: schedule.selectedDate,
           endDate: schedule.endDate,
-          startTime: schedule.startTime,
-          endTime: schedule.endTime,
-          color: schedule.color,
-          memo: schedule.memo
+          startTime: schedule.startTime || "",
+          endTime: schedule.endTime || "",
+          color: schedule.color || "#ffe066",
+          memo: schedule.memo || ""
         }}
         onFormDataChange={handleAddFormChange}
         onDateInputClick={ui.openMiniCalendar}
@@ -66,7 +75,7 @@ function ModalContainer({
         miniCalendarProps={{
           selectedDate: schedule.selectedDate ? format(schedule.selectedDate, 'yyyy-MM-dd') : '',
           onDateSelect: handlers.handleMiniCalendarDateSelect,
-          onClose: () => ui.setShowMiniCalendar(false),
+          onClose: ui.closeMiniCalendar,
           position: ui.miniCalendarPosition
         }}
       />
@@ -79,13 +88,13 @@ function ModalContainer({
         onSubmit={handlers.handleUpdateSchedule}
         onDelete={handlers.handleDeleteSchedule}
         formData={{
-          editTitle: schedule.editTitle,
-          editDate: schedule.editDate,
-          editEndDate: schedule.editEndDate,
-          editStartTime: schedule.editStartTime,
-          editEndTime: schedule.editEndTime,
-          editColor: schedule.editColor,
-          memo: schedule.editMemo // 수정용 메모 상태 사용
+          editTitle: schedule.editTitle || "",
+          editDate: schedule.editDate || "",
+          editEndDate: schedule.editEndDate || "",
+          editStartTime: schedule.editStartTime || "",
+          editEndTime: schedule.editEndTime || "",
+          editColor: schedule.editColor || "#ffe066",
+          memo: schedule.editMemo || ""
         }}
         onFormDataChange={handleEditFormChange}
         onDateInputClick={ui.openMiniCalendar}
@@ -93,7 +102,7 @@ function ModalContainer({
         miniCalendarProps={{
           selectedDate: schedule.editDate,
           onDateSelect: handlers.handleMiniCalendarDateSelect,
-          onClose: () => ui.setShowMiniCalendar(false),
+          onClose: ui.closeMiniCalendar,
           position: ui.miniCalendarPosition
         }}
       />
@@ -106,7 +115,7 @@ function ModalContainer({
         event={ui.eventContextMenu.event}
         onEdit={handlers.handleEditFromEventContext}
         onDelete={handlers.handleDeleteFromEventContext}
-        onClose={() => ui.setEventContextMenu({ show: false, x: 0, y: 0, event: null })}
+        onClose={ui.closeEventContextMenu}
       />
 
       {/* 날짜 셀 컨텍스트 메뉴 */}
@@ -116,7 +125,7 @@ function ModalContainer({
         y={ui.dateCellContextMenu.y}
         date={ui.dateCellContextMenu.date}
         onAddSchedule={handlers.handleAddScheduleFromDateContext}
-        onClose={() => ui.setDateCellContextMenu({ show: false, x: 0, y: 0, date: null })}
+        onClose={ui.closeDateCellContextMenu}
       />
     </>
   );
