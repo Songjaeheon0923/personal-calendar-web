@@ -83,8 +83,13 @@ function NewMonthView({
     Object.keys(allEventsByDate).forEach(dateKey => {
       const allEvents = allEventsByDate[dateKey];
       
-      // 시작시간 순으로 정렬 (종일 이벤트는 맨 아래)
+      // 다중일 이벤트 우선, 그 다음 시작시간 순으로 정렬 (종일 이벤트는 맨 아래)
       const sortedEvents = allEvents.sort((a, b) => {
+        // 다중일 여부로 먼저 정렬 (다중일이 위에)
+        if (a.isMultiDay && !b.isMultiDay) return -1;
+        if (!a.isMultiDay && b.isMultiDay) return 1;
+        
+        // 둘 다 다중일이거나 둘 다 단일일인 경우
         // startTime이 없는 경우 (종일 이벤트) 맨 아래에 표시
         if (!a.startTime && !b.startTime) return 0;
         if (!a.startTime) return 1; // a가 종일 이벤트면 뒤로
