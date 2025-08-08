@@ -48,12 +48,28 @@ body {
   padding: 8px 4px !important;
 }
 
-.rbc-header {
-  border-bottom: 1px solid #e5e7eb !important;
-  padding: 12px 8px !important;
-  font-weight: 600 !important;
-  background-color: #f9fafb !important;
-  display: none !important; /* react-big-calendar 기본 헤더 숨기기 */
+/* react-big-calendar 모든 헤더 요소 완전 제거 */
+.rbc-header,
+.rbc-month-header,
+.rbc-header-gutter,
+.rbc-row-header,
+.rbc-allday-cell {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  overflow: hidden !important;
+  position: absolute !important;
+  opacity: 0 !important;
+}
+
+/* 헤더 관련 행들도 숨기기 */
+.rbc-month-view > div:first-child {
+  display: none !important;
+}
+
+/* 요일 헤더 숨기기 */
+.rbc-month-view .rbc-row:first-child {
+  display: none !important;
 }
 
 .rbc-month-view {
@@ -72,8 +88,10 @@ body {
 
 /* 오늘 날짜 배경 */
 .rbc-today {
-  background-color: #e0f2fe !important;
+  background-color: #dbeafe !important;
 }
+
+/* 간단한 텍스트 날짜 헤더 - 추가 스타일 불필요 */
 
 /* 모달 애니메이션 */
 .modal-enter {
@@ -139,21 +157,30 @@ body {
 /* react-big-calendar 날짜 셀 기본 설정 */
 .rbc-date-cell {
   text-align: right !important;
-  padding: 4px !important;
+  padding: 0 !important;
   position: relative !important;
+  height: 100% !important;
 }
 
-/* CalendarDateHeader 강제 스타일 적용 */
-.rbc-date-cell > div {
-  padding-right: 8px !important;
-  padding-top: 4px !important;
-  display: flex !important;
-  justify-content: flex-end !important;
+/* 날짜 셀 전체에 위쪽 여백 추가 - 이벤트 영역을 아래로 밀기 */
+.rbc-month-row {
+  padding-top: 30px !important;
 }
+
+/* 날짜 셀들의 클릭/호버 영역을 원래 크기로 복구 */
+.rbc-month-row .rbc-day-bg,
+.rbc-month-row .rbc-today,
+.rbc-month-row .rbc-off-range-bg {
+  margin-top: -30px !important;
+  padding-top: 30px !important;
+  box-sizing: border-box !important;
+}
+
+/* 날짜 숫자는 JavaScript로 동적 생성 */
 
 /* react-big-calendar 월 뷰에서 요일별 색상은 CalendarDateHeader 컴포넌트에서 처리 */
 
-/* 날짜 셀 호버 효과 - 이벤트와 독립적으로 동작 */
+/* 날짜 셀 호버 효과 - 간단하고 깔끔하게 */
 .rbc-month-row .rbc-day-bg:hover {
   background-color: #f0f9ff !important;
   transition: background-color 0.2s ease;
@@ -174,11 +201,6 @@ body {
 .rbc-month-row .rbc-day-bg:first-child:hover,
 .rbc-month-row .rbc-day-bg:last-child:hover {
   background-color: #fef3f2 !important;
-}
-
-/* 날짜 헤더 영역은 투명 배경 유지 */
-.rbc-month-row .rbc-day-bg:hover .rbc-date-cell {
-  background-color: transparent !important;
 }
 
 /* 커스텀 이벤트 바는 호버 시에도 배경에 영향받지 않도록 */
@@ -205,11 +227,70 @@ body {
   z-index: 10;
 }
 
-/* 기본 react-big-calendar 이벤트 스타일 비활성화 */
+/* react-big-calendar 기본 이벤트를 커스텀 긴 띄지로 스타일링 */
 .rbc-event {
-  display: none !important; /* 기본 이벤트 렌더링 숨기기 */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: 0 !important; /* padding을 0으로 하고 내부 content에서 처리 */
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border-radius: 4px !important;
+  border: none !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  margin-bottom: 1px !important; /* 띄지 간 간격 */
+  pointer-events: auto !important; /* 마우스 이벤트 활성화 */
 }
 
+/* 이벤트 내용이 전체 영역을 채우도록 */
+.rbc-event-content {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 3px 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  pointer-events: auto !important;
+}
+
+.rbc-event:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+  z-index: 10 !important;
+}
+
+/* 이벤트 컨테이너 위치 조정 */
 .rbc-events-container {
-  display: none !important; /* 기본 이벤트 컨테이너 숨기기 */
+  display: block !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* 4번째 이후 이벤트는 숨김 처리 (3개 초과시) */
+.rbc-events-container .rbc-event:nth-child(n+4) {
+  display: none !important;
+}
+
+/* 다중일 이벤트 연결된 띄지 스타일 */
+.rbc-event.multi-day-start {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  padding-right: 3px !important;
+}
+
+.rbc-event.multi-day-middle {
+  border-radius: 0 !important;
+  padding-left: 3px !important;
+  padding-right: 3px !important;
+}
+
+.rbc-event.multi-day-end {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  padding-left: 3px !important;
 }

@@ -206,6 +206,9 @@ export function useSchedule() {
     }
     
     try {
+      console.log('selectScheduleForEdit - schedule:', schedule); // 디버깅용
+      console.log('selectScheduleForEdit - startTime:', schedule.startTime, 'endTime:', schedule.endTime); // 디버깅용
+      
       setSelectedSchedule(schedule);
       setEditTitle(schedule.title || "");
       setEditDate(schedule.date || "");

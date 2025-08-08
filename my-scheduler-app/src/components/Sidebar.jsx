@@ -10,7 +10,9 @@ function Sidebar({
   expandedEventIds,
   onClose,
   onToggleExpand,
-  onAddSchedule
+  onAddSchedule,
+  onEditSchedule,
+  onDeleteSchedule
 }) {
   const [filteredSchedules, setFilteredSchedules] = useState([]);
 
@@ -97,7 +99,53 @@ function Sidebar({
                   <div 
                     className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
                     onClick={() => onToggleExpand(schedule.id)}
-                    // ...existing code...
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      
+                      // 간단한 컨텍스트 메뉴 표시
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const menu = document.createElement('div');
+                      menu.className = 'fixed bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-2 min-w-[120px]';
+                      menu.style.left = `${e.clientX}px`;
+                      menu.style.top = `${e.clientY}px`;
+                      
+                      // 수정 버튼
+                      const editBtn = document.createElement('button');
+                      editBtn.className = 'w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2';
+                      editBtn.innerHTML = '<span>✏️</span> 수정';
+                      editBtn.onclick = () => {
+                        onEditSchedule(schedule);
+                        document.body.removeChild(menu);
+                      };
+                      
+                      // 삭제 버튼  
+                      const deleteBtn = document.createElement('button');
+                      deleteBtn.className = 'w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2';
+                      deleteBtn.innerHTML = '<span>🗑️</span> 삭제';
+                      deleteBtn.onclick = () => {
+                        if (window.confirm('정말로 이 일정을 삭제하시겠습니까?')) {
+                          onDeleteSchedule(schedule.id);
+                        }
+                        document.body.removeChild(menu);
+                      };
+                      
+                      menu.appendChild(editBtn);
+                      menu.appendChild(deleteBtn);
+                      document.body.appendChild(menu);
+                      
+                      // 클릭 외부 영역 클릭시 메뉴 닫기
+                      const closeMenu = (event) => {
+                        if (!menu.contains(event.target)) {
+                          document.body.removeChild(menu);
+                          document.removeEventListener('click', closeMenu);
+                        }
+                      };
+                      
+                      setTimeout(() => {
+                        document.addEventListener('click', closeMenu);
+                      }, 100);
+                    }}
                     style={{
                       borderLeft: `4px solid ${schedule.color || '#ffe066'}`,
                     }}

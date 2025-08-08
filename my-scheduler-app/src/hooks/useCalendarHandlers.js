@@ -46,22 +46,24 @@ export function useCalendarHandlers(schedule, ui) {
   }, [ui, schedule.schedules]);
 
   // 일정 우클릭 핸들러 (컨텍스트 메뉴)
-  const handleEventContextMenu = useCallback((event, jsEvent) => {
-    if (!event || !jsEvent) {
-      console.warn('Event or jsEvent is missing');
-      return;
-    }
-    
+  const handleEventContextMenu = useCallback((contextData) => {
     try {
-      jsEvent.preventDefault();
-      jsEvent.stopPropagation();
+      // NewMonthView에서 객체로 전달하는 경우와 기존 방식 모두 지원
+      const event = contextData.event || contextData;
+      const clientX = contextData.clientX || (arguments[1] && arguments[1].clientX);
+      const clientY = contextData.clientY || (arguments[1] && arguments[1].clientY);
       
-      console.log('Event context menu triggered for:', event);
+      if (!event || clientX === undefined || clientY === undefined) {
+        console.warn('Event, clientX, and clientY are required for context menu');
+        return;
+      }
+      
+      console.log('Event context menu triggered for:', event.title, 'id:', event.resource?.id);
       
       ui.setEventContextMenu({
         show: true,
-        x: jsEvent.clientX,
-        y: jsEvent.clientY,
+        x: clientX,
+        y: clientY,
         event: event
       });
     } catch (error) {
@@ -70,20 +72,22 @@ export function useCalendarHandlers(schedule, ui) {
   }, [ui]);
 
   // 날짜 셀 우클릭 핸들러 (일정 추가 컨텍스트 메뉴)
-  const handleDateCellContextMenu = useCallback((date, jsEvent) => {
-    if (!date || !jsEvent) {
-      console.warn('Date or jsEvent is missing');
-      return;
-    }
-    
+  const handleDateCellContextMenu = useCallback((contextData) => {
     try {
-      jsEvent.preventDefault();
-      jsEvent.stopPropagation();
+      // NewMonthView에서 객체로 전달하는 경우와 기존 방식 모두 지원
+      const date = contextData.date || contextData;
+      const clientX = contextData.clientX || (arguments[1] && arguments[1].clientX);
+      const clientY = contextData.clientY || (arguments[1] && arguments[1].clientY);
+      
+      if (!date || clientX === undefined || clientY === undefined) {
+        console.warn('Date, clientX, and clientY are required for context menu');
+        return;
+      }
       
       ui.setDateCellContextMenu({
         show: true,
-        x: jsEvent.clientX,
-        y: jsEvent.clientY,
+        x: clientX,
+        y: clientY,
         date: date
       });
     } catch (error) {
@@ -123,6 +127,10 @@ export function useCalendarHandlers(schedule, ui) {
   const handleEditFromEventContext = useCallback(() => {
     try {
       const event = ui.eventContextMenu.event;
+      console.log('Editing event - full event:', event); // 디버깅용
+      console.log('Editing event - resource:', event?.resource); // 디버깅용
+      
+      // Access event from context menu state
       if (event?.resource) {
         schedule.selectScheduleForEdit(event.resource);
         ui.setScheduleDetailOpen(true);
@@ -139,6 +147,9 @@ export function useCalendarHandlers(schedule, ui) {
   const handleDeleteFromEventContext = useCallback(() => {
     try {
       const event = ui.eventContextMenu.event;
+      console.log('Deleting event:', event?.title, 'id:', event?.resource?.id); // 디버깅용
+      
+      // Access event from context menu state
       if (event?.resource?.id) {
         const deleteScheduleFn = schedule.deleteSchedule(
           ui.sidebarDate, 

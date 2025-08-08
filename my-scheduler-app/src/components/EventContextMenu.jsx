@@ -123,7 +123,8 @@ function EventContextMenu({
         className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 flex items-center"
         onClick={(e) => {
           e.stopPropagation();
-          onEdit(event);
+          // Call edit handler
+          onEdit();
         }}
       >
         <span className="mr-2">✏️</span>
@@ -133,7 +134,8 @@ function EventContextMenu({
         className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 text-red-600 flex items-center"
         onClick={(e) => {
           e.stopPropagation();
-          onDelete(event);
+          // Call delete handler
+          onDelete();
         }}
       >
         <span className="mr-2">🗑️</span>

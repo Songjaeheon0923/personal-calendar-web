@@ -1,0 +1,244 @@
+import React, { useMemo, useCallback } from 'react';
+import { 
+  startOfMonth, 
+  endOfMonth, 
+  startOfWeek, 
+  endOfWeek, 
+  eachDayOfInterval, 
+  isSameMonth, 
+  isToday, 
+  format, 
+  isSameDay 
+} from 'date-fns';
+import { ko } from 'date-fns/locale';
+
+function NewMonthView({
+  calendarDate,
+  events = [],
+  onSelectSlot,
+  onEventSelect,
+  onEventContextMenu,
+  onDateCellContextMenu,
+  dateCellContextMenuActive,
+  eventContextMenuActive,
+  eventStyleGetter
+}) {
+  // 달력 날짜들 계산
+  const calendarDays = useMemo(() => {
+    const monthStart = startOfMonth(calendarDate);
+    const monthEnd = endOfMonth(calendarDate);
+    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 }); // 일요일 시작
+    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
+    
+    return eachDayOfInterval({ start: calendarStart, end: calendarEnd });
+  }, [calendarDate]);
+
+  // 6주 x 7일 = 42일로 구성
+  const weeks = useMemo(() => {
+    const result = [];
+    for (let i = 0; i < 6; i++) {
+      result.push(calendarDays.slice(i * 7, (i + 1) * 7));
+    }
+    return result;
+  }, [calendarDays]);
+
+  // 각 날짜별 이벤트 정리
+  const eventsByDate = useMemo(() => {
+    const result = {};
+    
+    events.forEach(event => {
+      const startDate = new Date(event.start);
+      const endDate = new Date(event.end);
+      
+      // 다중일 이벤트인 경우 각 날짜에 정보 추가
+      const startDateOnly = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+      const endDateOnly = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+      const current = new Date(startDateOnly);
+      let dayIndex = 0;
+      
+      while (current <= endDateOnly) {
+        const dateKey = format(current, 'yyyy-MM-dd');
+        
+        if (!result[dateKey]) {
+          result[dateKey] = [];
+        }
+        
+        const isStart = dayIndex === 0;
+        const isEnd = isSameDay(current, endDateOnly);
+        const isMiddle = !isStart && !isEnd;
+        
+        result[dateKey].push({
+          ...event,
+          position: isStart ? 'start' : isEnd ? 'end' : 'middle',
+          isMultiDay: !isSameDay(startDateOnly, endDateOnly)
+        });
+        
+        current.setDate(current.getDate() + 1);
+        dayIndex++;
+      }
+    });
+    
+    // 각 날짜별로 최대 3개까지만
+    Object.keys(result).forEach(dateKey => {
+      result[dateKey] = result[dateKey].slice(0, 3);
+    });
+    
+    return result;
+  }, [events]);
+
+  // 날짜 셀 클릭 핸들러
+  const handleDateClick = useCallback((date, event) => {
+    if (dateCellContextMenuActive || eventContextMenuActive) return;
+    
+    if (onSelectSlot) {
+      onSelectSlot({
+        start: date,
+        end: date,
+        slots: [date],
+        action: 'click'
+      });
+    }
+  }, [onSelectSlot, dateCellContextMenuActive, eventContextMenuActive]);
+
+  // 날짜 셀 우클릭 핸들러
+  const handleDateContextMenu = useCallback((date, event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (onDateCellContextMenu) {
+      onDateCellContextMenu({
+        date,
+        clientX: event.clientX,
+        clientY: event.clientY
+      });
+    }
+  }, [onDateCellContextMenu]);
+
+  // 이벤트 클릭 핸들러
+  const handleEventClick = useCallback((event, originalEvent) => {
+    originalEvent.preventDefault();
+    originalEvent.stopPropagation();
+    
+    if (dateCellContextMenuActive || eventContextMenuActive) return;
+    
+    if (onEventSelect) {
+      onEventSelect(event, originalEvent);
+    }
+  }, [onEventSelect, dateCellContextMenuActive, eventContextMenuActive]);
+
+  // 이벤트 우클릭 핸들러
+  const handleEventContextMenu = useCallback((event, originalEvent) => {
+    originalEvent.preventDefault();
+    originalEvent.stopPropagation();
+    
+    if (onEventContextMenu) {
+      onEventContextMenu({
+        event,
+        clientX: originalEvent.clientX,
+        clientY: originalEvent.clientY
+      });
+    }
+  }, [onEventContextMenu]);
+
+  // 이벤트 스타일 가져오기
+  const getEventStyle = useCallback((event) => {
+    if (eventStyleGetter) {
+      const style = eventStyleGetter(event);
+      return style?.style || {};
+    }
+    return {};
+  }, [eventStyleGetter]);
+
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
+
+  return (
+    <div className="new-calendar">
+      {/* 요일 헤더 */}
+      <div className="calendar-weekdays">
+        {weekdays.map((day, index) => (
+          <div 
+            key={day} 
+            className={`weekday-cell ${
+              index === 0 ? 'sunday' : index === 6 ? 'saturday' : ''
+            }`}
+          >
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* 달력 그리드 */}
+      <div className="calendar-grid">
+        {weeks.map((week, weekIndex) => (
+          <div key={weekIndex} className="calendar-week">
+            {week.map((date) => {
+              const dateKey = format(date, 'yyyy-MM-dd');
+              const dayEvents = eventsByDate[dateKey] || [];
+              const isCurrentMonth = isSameMonth(date, calendarDate);
+              const isCurrentDay = isToday(date);
+              
+              return (
+                <div
+                  key={dateKey}
+                  className={`date-cell ${
+                    !isCurrentMonth ? 'other-month' : ''
+                  } ${isCurrentDay ? 'today' : ''}`}
+                  onClick={(e) => handleDateClick(date, e)}
+                  onContextMenu={(e) => handleDateContextMenu(date, e)}
+                >
+                  {/* 날짜 숫자 */}
+                  <div className="date-number">
+                    {format(date, 'd')}
+                  </div>
+
+                  {/* 이벤트들 */}
+                  <div className="events-container">
+                    {dayEvents.map((event, eventIndex) => {
+                      const eventStyle = getEventStyle(event);
+                      const backgroundColor = eventStyle.backgroundColor || event.color || '#3b82f6';
+                      
+                      return (
+                        <div
+                          key={`${event.id}-${eventIndex}`}
+                          className={`event-bar ${
+                            event.isMultiDay 
+                              ? `multi-${event.position}` 
+                              : ''
+                          }`}
+                          style={{ 
+                            backgroundColor,
+                            ...eventStyle
+                          }}
+                          onClick={(e) => handleEventClick(event, e)}
+                          onContextMenu={(e) => handleEventContextMenu(event, e)}
+                        >
+                          <span className="event-title">
+                            {event.title}
+                          </span>
+                          {event.startTime && event.position !== 'middle' && (
+                            <span className="event-time">
+                              {event.startTime}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                    
+                    {/* 3개 이상일 때 더보기 표시 */}
+                    {(eventsByDate[dateKey]?.length || 0) > 3 && (
+                      <div className="more-events">
+                        +{(eventsByDate[dateKey]?.length || 0) - 3} more
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default NewMonthView;

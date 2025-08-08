@@ -19,7 +19,7 @@ function App() {
   return (
     <div className="w-screen h-screen bg-gray-100 flex flex-col">
       <header className="py-4 px-8 bg-white shadow flex-none flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-blue-600">맞춤 일정 관리 웹</h1>
+        <h1 className="text-3xl font-bold text-blue-600">My Calander</h1>
         <button
           className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
           onClick={handlers.handleOpenAddModal}

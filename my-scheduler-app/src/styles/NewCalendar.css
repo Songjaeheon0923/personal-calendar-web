@@ -1,0 +1,241 @@
+/* 새로운 달력 - 완전히 동일한 높이 보장 */
+
+.new-calendar {
+  width: 100%;
+  height: 100%;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 요일 헤더 */
+.calendar-weekdays {
+  display: flex;
+  height: 50px;
+  flex-shrink: 0;
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.weekday-cell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
+  border-right: 1px solid #e2e8f0;
+}
+
+.weekday-cell:last-child {
+  border-right: none;
+}
+
+.weekday-cell.sunday {
+  color: #dc2626;
+}
+
+.weekday-cell.saturday {
+  color: #2563eb;
+}
+
+/* 달력 그리드 - 절대적으로 동일한 높이 */
+.calendar-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* 주별 행 - 각각 정확히 1/6 */
+.calendar-week {
+  flex: 1; /* 완전히 동일한 비율 */
+  min-height: 0; /* flex 1이 제대로 동작하도록 */
+  display: flex;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.calendar-week:last-child {
+  border-bottom: none;
+}
+
+/* 날짜 셀 - 각각 정확히 1/7 */
+.date-cell {
+  flex: 1;
+  min-width: 0; /* flex 1이 제대로 동작하도록 */
+  position: relative;
+  border-right: 1px solid #e2e8f0;
+  background: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.date-cell:last-child {
+  border-right: none;
+}
+
+/* 날짜 셀 상태 */
+.date-cell:hover {
+  background: #f1f5f9;
+}
+
+.date-cell.other-month {
+  background: #f9fafb;
+  color: #9ca3af;
+}
+
+.date-cell.other-month:hover {
+  background: #f3f4f6;
+}
+
+.date-cell.today {
+  background: #eff6ff;
+}
+
+.date-cell.today:hover {
+  background: #dbeafe;
+}
+
+/* 날짜 숫자 - 왼쪽 위 */
+.date-number {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+
+.date-cell.other-month .date-number {
+  color: #9ca3af;
+}
+
+.date-cell.today .date-number {
+  color: #2563eb;
+  background: #dbeafe;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+/* 이벤트 영역 */
+.events-container {
+  position: absolute;
+  top: 32px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  pointer-events: none;
+}
+
+/* 이벤트 띠지 */
+.event-bar {
+  height: 20px;
+  background: #3b82f6;
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.event-bar:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.event-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.event-time {
+  font-size: 11px;
+  opacity: 0.9;
+  margin-left: 6px;
+  flex-shrink: 0;
+}
+
+/* 다중일 이벤트 */
+.event-bar.multi-start {
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  margin-right: -4px;
+}
+
+.event-bar.multi-middle {
+  border-radius: 0;
+  margin-left: -4px;
+  margin-right: -4px;
+}
+
+.event-bar.multi-end {
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+  margin-left: -4px;
+}
+
+/* 다중일 이벤트 텍스트 */
+.event-bar.multi-middle .event-title {
+  text-align: center;
+  opacity: 0.8;
+}
+
+.event-bar.multi-end .event-title {
+  visibility: hidden;
+}
+
+/* 3개 이상일 때 더보기 */
+.more-events {
+  height: 16px;
+  font-size: 10px;
+  color: #6b7280;
+  text-align: center;
+  line-height: 16px;
+  pointer-events: none;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .date-cell {
+    padding: 4px;
+  }
+  
+  .date-number {
+    font-size: 12px;
+    top: 4px;
+    left: 4px;
+  }
+  
+  .events-container {
+    top: 24px;
+    left: 2px;
+    right: 2px;
+  }
+  
+  .event-bar {
+    height: 18px;
+    font-size: 11px;
+  }
+}
