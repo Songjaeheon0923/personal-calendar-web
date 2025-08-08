@@ -167,6 +167,23 @@ function NewMonthView({
     return {};
   }, [eventStyleGetter]);
 
+  // 다중일 이벤트 hover 핸들러
+  const handleEventMouseEnter = useCallback((eventId) => {
+    if (!eventId) return;
+    
+    // 같은 이벤트 ID를 가진 모든 띠지에 hover 클래스 추가
+    const eventBars = document.querySelectorAll(`[data-event-id="${eventId}"]`);
+    eventBars.forEach(bar => bar.classList.add('event-group-hover'));
+  }, []);
+
+  const handleEventMouseLeave = useCallback((eventId) => {
+    if (!eventId) return;
+    
+    // 같은 이벤트 ID를 가진 모든 띠지에서 hover 클래스 제거
+    const eventBars = document.querySelectorAll(`[data-event-id="${eventId}"]`);
+    eventBars.forEach(bar => bar.classList.remove('event-group-hover'));
+  }, []);
+
   const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
 
   return (
@@ -230,11 +247,19 @@ function NewMonthView({
                           }}
                           onClick={(e) => handleEventClick(event, e)}
                           onContextMenu={(e) => handleEventContextMenu(event, e)}
+                          onMouseEnter={() => handleEventMouseEnter(event.id)}
+                          onMouseLeave={() => handleEventMouseLeave(event.id)}
+                          data-event-id={event.id}
                         >
                           <span className="event-title">
-                            {event.title}
+                            {/* 다중일 이벤트는 start에만 제목 표시, 단일일 이벤트는 항상 표시 */}
+                            {event.isMultiDay 
+                              ? (event.position === 'start' ? event.title : '')
+                              : event.title
+                            }
                           </span>
-                          {event.startTime && event.position !== 'middle' && (
+                          {/* 다중일 이벤트는 시작시간 표시하지 않음 */}
+                          {!event.isMultiDay && event.startTime && (
                             <span className="event-time">
                               {event.startTime}
                             </span>

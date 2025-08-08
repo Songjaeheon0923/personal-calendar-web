@@ -73,7 +73,7 @@
   cursor: pointer;
   transition: background-color 0.2s ease;
   padding: 8px;
-  overflow: hidden;
+  overflow: visible; /* 다중일 이벤트가 경계를 넘을 수 있도록 */
 }
 
 .date-cell:last-child {
@@ -160,7 +160,8 @@
   min-height: 18px; /* 최소 높이 보장 */
 }
 
-.event-bar:hover {
+.event-bar:hover,
+.event-bar.event-group-hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
@@ -179,33 +180,45 @@
   flex-shrink: 0;
 }
 
-/* 다중일 이벤트 */
+/* 다중일 이벤트 - 하나의 연속된 사각형처럼 보이도록 */
 .event-bar.multi-start {
-  border-top-right-radius: 2px;
-  border-bottom-right-radius: 2px;
+  border-top-right-radius: 0 !important; /* 오른쪽 모서리 직각 */
+  border-bottom-right-radius: 0 !important;
+  border-top-left-radius: 4px !important; /* 왼쪽 모서리만 둥글게 */
+  border-bottom-left-radius: 4px !important;
   margin-right: -4px;
+  position: relative;
+  z-index: 10; /* 다른 요소 위에 표시 */
 }
 
 .event-bar.multi-middle {
-  border-radius: 0;
-  margin-left: -4px;
-  margin-right: -4px;
+  border-radius: 0 !important; /* 모든 모서리 직각 */
+  margin-left: -5px;
+  margin-right: -5px;
+  position: relative;
+  z-index: 10; /* 다른 요소 위에 표시 */
 }
 
 .event-bar.multi-end {
-  border-top-left-radius: 2px;
-  border-bottom-left-radius: 2px;
+  border-top-left-radius: 0 !important; /* 왼쪽 모서리 직각 */
+  border-bottom-left-radius: 0 !important;
+  border-top-right-radius: 4px !important; /* 오른쪽 모서리만 둥글게 */
+  border-bottom-right-radius: 4px !important;
   margin-left: -4px;
+  position: relative;
+  z-index: 10; /* 다른 요소 위에 표시 */
 }
 
 /* 다중일 이벤트 텍스트 */
-.event-bar.multi-middle .event-title {
-  text-align: center;
-  opacity: 0.8;
+.event-bar.multi-middle .event-title,
+.event-bar.multi-end .event-title {
+  visibility: hidden; /* middle과 end에서는 제목 숨김 */
 }
 
-.event-bar.multi-end .event-title {
-  visibility: hidden;
+.event-bar.multi-start .event-title {
+  text-align: center; /* 좌우 가운데 정렬 */
+  visibility: visible; /* start에서만 제목 표시 */
+  font-weight: 600;
 }
 
 /* 4개 이상일 때 더보기 */
