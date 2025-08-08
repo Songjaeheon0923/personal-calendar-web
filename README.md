@@ -6,6 +6,9 @@
 
 > **여기에 일정이나 과제 마감일 넣어서 사용할 예정임. MCP 서버나 데이터베이스 연결해서 자동으로 내 과제 불러올 수도?**
 
+![메인 화면](https://github.com/user-attachments/assets/8df79872-b7bd-4011-931c-3884bdf08269)
+
+
 ## 주요 기능
 
 ### 🎯 **핵심 기능**
@@ -226,3 +229,4 @@ npm run lint
 ![React](https://img.shields.io/badge/React-19.1.0-61DAFB?style=flat-square&logo=react)
 ![Vite](https://img.shields.io/badge/Vite-7.0.4-646CFF?style=flat-square&logo=vite)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4.1-38B2AC?style=flat-square&logo=tailwind-css)
+
