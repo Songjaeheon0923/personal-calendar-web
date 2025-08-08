@@ -142,7 +142,8 @@
 
 /* 이벤트 띠지 */
 .event-bar {
-  height: 20px;
+  flex: 1;
+  max-height: calc((100% - 2px) / 3); /* 3개로 분할, 2px는 gap 공간 */
   background: #3b82f6;
   border-radius: 4px;
   padding: 2px 6px;
@@ -156,6 +157,7 @@
   pointer-events: auto;
   transition: all 0.2s ease;
   overflow: hidden;
+  min-height: 18px; /* 최소 높이 보장 */
 }
 
 .event-bar:hover {
@@ -206,14 +208,23 @@
   visibility: hidden;
 }
 
-/* 3개 이상일 때 더보기 */
+/* 4개 이상일 때 더보기 */
 .more-events {
-  height: 16px;
-  font-size: 10px;
-  color: #6b7280;
+  flex: 1;
+  max-height: calc((100% - 2px) / 3); /* 이벤트 바와 동일한 크기 */
+  min-height: 18px;
+  font-size: 15px; /* 12px에서 14px로 더 크게 증가 */
+  font-weight: 600; /* 폰트 두께를 더 굵게 */
+  color: #455061; /* 색상을 더 진하게 */
   text-align: center;
-  line-height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
+  background: rgba(123, 127, 134, 0.15); /* 배경을 더 진하게 */
+  border-radius: 4px;
+  border: 1px dashed #65696d; /* 테두리를 더 진하게 */
+  padding: 1px 4px; /* 패딩 추가로 텍스트 공간 확보 */
 }
 
 /* 반응형 */
@@ -235,7 +246,14 @@
   }
   
   .event-bar {
-    height: 18px;
+    min-height: 16px;
     font-size: 11px;
+  }
+  
+  .more-events {
+    min-height: 16px;
+    font-size: 13px; /* 11px에서 13px로 더 크게 증가 */
+    font-weight: 700; /* 모바일에서도 굵게 */
+    padding: 1px 2px; /* 모바일에서는 패딩을 조금 줄임 */
   }
 }

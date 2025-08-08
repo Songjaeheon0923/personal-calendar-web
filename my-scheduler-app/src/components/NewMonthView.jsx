@@ -45,6 +45,7 @@ function NewMonthView({
   // 각 날짜별 이벤트 정리
   const eventsByDate = useMemo(() => {
     const result = {};
+    const allEventsByDate = {};
     
     events.forEach(event => {
       const startDate = new Date(event.start);
@@ -59,15 +60,15 @@ function NewMonthView({
       while (current <= endDateOnly) {
         const dateKey = format(current, 'yyyy-MM-dd');
         
-        if (!result[dateKey]) {
-          result[dateKey] = [];
+        if (!allEventsByDate[dateKey]) {
+          allEventsByDate[dateKey] = [];
         }
         
         const isStart = dayIndex === 0;
         const isEnd = isSameDay(current, endDateOnly);
         const isMiddle = !isStart && !isEnd;
         
-        result[dateKey].push({
+        allEventsByDate[dateKey].push({
           ...event,
           position: isStart ? 'start' : isEnd ? 'end' : 'middle',
           isMultiDay: !isSameDay(startDateOnly, endDateOnly)
@@ -78,9 +79,14 @@ function NewMonthView({
       }
     });
     
-    // 각 날짜별로 최대 3개까지만
-    Object.keys(result).forEach(dateKey => {
-      result[dateKey] = result[dateKey].slice(0, 3);
+    // 각 날짜별로 표시용 이벤트와 전체 개수 저장
+    Object.keys(allEventsByDate).forEach(dateKey => {
+      const allEvents = allEventsByDate[dateKey];
+      result[dateKey] = {
+        visibleEvents: allEvents.length <= 3 ? allEvents : allEvents.slice(0, 2), // 3개 이하면 모두 표시, 4개 이상이면 2개만
+        totalCount: allEvents.length,
+        hasMore: allEvents.length > 3 // 4개 이상일 때만 더보기 표시
+      };
     });
     
     return result;
@@ -173,7 +179,8 @@ function NewMonthView({
           <div key={weekIndex} className="calendar-week">
             {week.map((date) => {
               const dateKey = format(date, 'yyyy-MM-dd');
-              const dayEvents = eventsByDate[dateKey] || [];
+              const dayData = eventsByDate[dateKey] || { visibleEvents: [], totalCount: 0, hasMore: false };
+              const { visibleEvents, totalCount, hasMore } = dayData;
               const isCurrentMonth = isSameMonth(date, calendarDate);
               const isCurrentDay = isToday(date);
               
@@ -193,7 +200,7 @@ function NewMonthView({
 
                   {/* 이벤트들 */}
                   <div className="events-container">
-                    {dayEvents.map((event, eventIndex) => {
+                    {visibleEvents.map((event, eventIndex) => {
                       const eventStyle = getEventStyle(event);
                       const backgroundColor = eventStyle.backgroundColor || event.color || '#3b82f6';
                       
@@ -224,10 +231,10 @@ function NewMonthView({
                       );
                     })}
                     
-                    {/* 3개 이상일 때 더보기 표시 */}
-                    {(eventsByDate[dateKey]?.length || 0) > 3 && (
+                    {/* 4개 이상일 때 더보기 표시 */}
+                    {hasMore && (
                       <div className="more-events">
-                        +{(eventsByDate[dateKey]?.length || 0) - 3} more
+                        +{totalCount - 2} more
                       </div>
                     )}
                   </div>
