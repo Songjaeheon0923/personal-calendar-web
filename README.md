@@ -2,7 +2,7 @@
 
 > **그냥 내가 쓰려고 만든 나한테 최적화된 캘린더임**
 
-여기에 일정이나 과제 마감일 넣어서 사용할 예정임. MCP 서버나 데이터베이스 연결해서 자동으로 내 과제 불러올 수도?
+> **여기에 일정이나 과제 마감일 넣어서 사용할 예정임. MCP 서버나 데이터베이스 연결해서 자동으로 내 과제 불러올 수도?**
 
 ![React](https://img.shields.io/badge/React-19.1.0-61DAFB?style=flat-square&logo=react)
 ![Vite](https://img.shields.io/badge/Vite-7.0.4-646CFF?style=flat-square&logo=vite)
