@@ -82,10 +82,22 @@ function NewMonthView({
     // 각 날짜별로 표시용 이벤트와 전체 개수 저장
     Object.keys(allEventsByDate).forEach(dateKey => {
       const allEvents = allEventsByDate[dateKey];
+      
+      // 시작시간 순으로 정렬 (종일 이벤트는 맨 아래)
+      const sortedEvents = allEvents.sort((a, b) => {
+        // startTime이 없는 경우 (종일 이벤트) 맨 아래에 표시
+        if (!a.startTime && !b.startTime) return 0;
+        if (!a.startTime) return 1; // a가 종일 이벤트면 뒤로
+        if (!b.startTime) return -1; // b가 종일 이벤트면 뒤로
+        
+        // 시작시간으로 비교
+        return a.startTime.localeCompare(b.startTime);
+      });
+      
       result[dateKey] = {
-        visibleEvents: allEvents.length <= 3 ? allEvents : allEvents.slice(0, 2), // 3개 이하면 모두 표시, 4개 이상이면 2개만
-        totalCount: allEvents.length,
-        hasMore: allEvents.length > 3 // 4개 이상일 때만 더보기 표시
+        visibleEvents: sortedEvents.length <= 3 ? sortedEvents : sortedEvents.slice(0, 2), // 3개 이하면 모두 표시, 4개 이상이면 2개만
+        totalCount: sortedEvents.length,
+        hasMore: sortedEvents.length > 3 // 4개 이상일 때만 더보기 표시
       };
     });
     
