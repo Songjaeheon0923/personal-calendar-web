@@ -1,229 +1,225 @@
-# 📅 Personal Calendar Web Application
+# 📅 Personal Calendar Full-Stack Application
 
-> **그냥 내가 쓰려고 만든 나한테 최적화된 캘린더**
+> **개인용 캘린더 웹 애플리케이션 - 완전히 간소화된 SQLite 기반 풀스택 구조**
 
-> **여기에 일정이나 과제 마감일 넣어서 사용할 예정임. MCP 서버나 데이터베이스 연결해서 자동으로 내 과제 불러올 수도 있을듯**
+## 🚀 **빠른 시작 (한 번의 클릭으로!)**
 
-![메인 화면](https://github.com/user-attachments/assets/8df79872-b7bd-4011-931c-3884bdf08269)
+### **🖱️ 바탕화면 바로가기 (권장)**
+1. 바탕화면에서 **우클릭** → **새로 만들기** → **바로가기**
+2. **위치**: `C:\project\personal-calendar-web\start.bat`
+3. **이름**: `Personal Calendar`
+4. **아이콘 더블클릭** → 자동으로 서버 시작 + 브라우저 실행
 
-
-## 주요 기능
-
-### 🎯 **핵심 기능**
-
-- **완전 커스텀 월별 뷰**: react-big-calendar를 확장한 것
-- **다중일 이벤트**: 하나의 이벤트가 여러 날짜에 걸쳐 진행될 경우 예외처리
-- **인터랙티브 사이드바**: 날짜 클릭으로 해당 날짜의 일정 라인업 확인 가능
-- **컨텍스트 메뉴**: 우클릭으로 빠른 일정 추가/편집/삭제 가능
-
-### **내맘대로 UI/UX**
-
-- **드래그 가능한 미니 캘린더**: 이벤트 생성/수정할 때에 날짜 수정 미니 캘린더 모달을 움직일 수 있음.
-- **스마트 표시 제한**: 3개 이하는 모두, 4개 이상은 2개 + "더보기"
-- **URL 자동 링크**: 메모의 URL을 자동으로 클릭 가능한 링크로 변환 (과제 경로 연결할거임)
-
-### 💾 **데이터 관리**
-
-- **로컬 스토리지**: 브라우저에 일정 데이터 자동 저장(임시 데베)
-- **앞으로 발전시킬 것**: SQL 연결하고 내 로컬과 연결해서 내 노트북&데탑에 최적화되게끔 만들수도?
-
-## 아키텍처
-
-### **컴포넌트 구조**
-
-```
-App.jsx (68줄) - 극도로 리팩토링된 메인 컨테이너
-├── Calendar.jsx - react-big-calendar 래퍼
-│   └── NewMonthView.jsx - 완전 커스텀 월별 뷰
-├── Sidebar.jsx - 날짜별 일정 목록
-└── ModalContainer.jsx - 중앙화된 모달 관리
-    ├── AddScheduleModal.jsx - 일정 추가
-    ├── ScheduleDetailModal.jsx - 일정 수정/삭제
-    ├── MiniCalendar.jsx - 드래그 가능한 미니 캘린더
-    └── Context Menus - 우클릭 메뉴들
-```
-
-## 기술 스택
-
-### **Frontend**
-
-- **React 19.1.0** - 최신 React with Hooks
-- **Vite 7.0.4** - 차세대 빌드 도구
-- **Tailwind CSS 3.4.1** - 유틸리티 우선 CSS
-
-### **Calendar & Date**
-
-- **react-big-calendar 1.19.4** - 캘린더 기반 라이브러리
-- **date-fns 4.1.0** - 한국어 로케일 날짜 처리
-- **dayjs 1.11.13** - 추가 날짜 유틸리티
-
-### **Development**
-
-- **ESLint** - 코드 품질 관리
-- **PostCSS + Autoprefixer** - CSS 후처리
-
-## 📁 프로젝트 구조
-
-```
-📁 personal-calendar-web/
-├── 📁 my-scheduler-app/           # 메인 애플리케이션
-│   ├── 📁 src/
-│   │   ├── 📄 App.jsx            # 메인 컨테이너 (68줄)
-│   │   ├── 📁 components/        # React 컴포넌트
-│   │   │   ├── Calendar.jsx           # 캘린더 래퍼
-│   │   │   ├── NewMonthView.jsx       # 커스텀 월별 뷰
-│   │   │   ├── Sidebar.jsx            # 사이드바
-│   │   │   ├── ModalContainer.jsx     # 모달 중앙 관리
-│   │   │   ├── MiniCalendar.jsx       # 드래그 캘린더
-│   │   │   └── ...                    # 기타 컴포넌트들
-│   │   ├── 📁 hooks/             # 커스텀 훅
-│   │   │   ├── useSchedule.js         # 일정 데이터 관리
-│   │   │   ├── useUI.js               # UI 상태 관리
-│   │   │   ├── useCalendarHandlers.js # 이벤트 핸들러
-│   │   │   └── useLocalStorage.js     # 로컬 스토리지
-│   │   ├── 📁 utils/             # 유틸리티
-│   │   │   ├── calendarConfig.js      # 캘린더 설정
-│   │   │   ├── textUtils.jsx          # 텍스트/링크 처리
-│   │   │   └── dateHelpers.js         # 날짜 유틸리티
-│   │   ├── 📁 styles/            # CSS 파일
-│   │   │   └── NewCalendar.css        # 커스텀 캘린더 스타일
-│   │   └── 📁 constants/         # 상수 정의
-│   └── 📄 package.json           # 의존성 관리
-├── 📄 README.md                  # 프로젝트 소개
-├── 📄 CLAUDE.md                  # Claude Code 가이드
-└── 📄 TECHNICAL_DOCUMENTATION.md # 기술 문서
-```
-
-## 기능 상세
-
-### **다중일 이벤트 띠지 시스템**
-
-```css
-/* 시각적 연결 효과 */
-.multi-start {
-  border-right: 직각;
-} /* 시작일 */
-.multi-middle {
-  border: 직각;
-} /* 중간일 */
-.multi-end {
-  border-left: 직각;
-} /* 종료일 */
-```
-
-- **연속된 사각형**: CSS로 구현된 완벽한 시각적 연결
-- **중앙 제목**: 시작일에만 제목 표시, 가운데 정렬
-- **그룹 hover**: 한 부분 hover 시 전체 띠지 동시 반응
-
-### **우선순위 기반 정렬**
-
-```javascript
-// 정렬 로직 (NewMonthView.jsx)
-1️⃣ 다중일 이벤트 (최상단)
-2️⃣ 단일일 시간 있는 일정 (시작시간 순)
-3️⃣ 종일 일정 (최하단)
-```
-
-### **드래그 가능한 미니 캘린더**
-
-```javascript
-// 모달 내 자유로운 드래그
-- 실시간 위치 계산
-- 모달 경계 제한
-- 드래그 후 위치 기억
-- 시작일/종료일 구분 지원
-```
-
-## 시작하기
-
-### **설치 및 실행**
-
+### **⌨️ 명령어로 실행**
 ```bash
-# 프로젝트 디렉토리 이동
-cd my-scheduler-app
+# Windows
+start.bat
 
-# 의존성 설치
-npm install
-
-# 개발 서버 실행 (http://localhost:5173)
+# 또는 npm으로
 npm run dev
-
-# 프로덕션 빌드
-npm run build
-
-# 코드 검사
-npm run lint
 ```
 
-### **주요 명령어**
-
-- `npm run dev` - 개발 서버 실행
-- `npm run build` - 프로덕션 빌드
-- `npm run preview` - 빌드 결과 미리보기
-- `npm run lint` - ESLint 코드 검사
-
-## 사용법
-
-### **일정 관리**
-
-1. **일정 추가**
-
-   - 캘린더 날짜 클릭 → 사이드바에서 "+ 새 일정 추가"
-   - 날짜 셀 우클릭 → "새 일정 추가"
-   - 헤더 "+ 새 일정 추가" 버튼
-
-2. **일정 보기**
-
-   - 날짜 클릭 → 사이드바에 해당 날짜 일정 표시
-   - 일정 카드 클릭 → 세부 내용 확장/축소
-
-3. **일정 수정**
-
-   - 사이드바 일정 카드의 "수정" 버튼
-   - 캘린더 일정 우클릭 → "수정"
-
-4. **일정 삭제**
-   - 사이드바 일정 카드의 "삭제" 버튼
-   - 캘린더 일정 우클릭 → "삭제"
-
-## 프로젝트 특징
-
-### ** 내맘대로 UX**
-
-- **시각적 연결**: 다중일 이벤트의 완벽한 띠지 연결 효과
-- **직관적 상호작용**: 클릭, 우클릭, 드래그로 모든 기능 접근
-
-### **고성능 아키텍처**
-
-- **커스텀 훅 분리**: 관심사 분리로 유지보수성 극대화
-- **효율적 렌더링**: useMemo, useCallback 적극 활용
-
-### ** 안정성**
-
-- **에러 핸들링**: 각 기능별 안전 장치
-- **타입 안전성**: PropTypes 및 방어적 프로그래밍
-- **데이터 무결성**: 로컬 스토리지 안전 저장/로드
-
-## 개발자 가이드
-
-### **핵심 개발 원칙**
-
-1. **컴포넌트 순수성**: 사이드 이펙트 최소화
-2. **단일 책임 원칙**: 각 훅과 컴포넌트의 명확한 역할
-3. **불변성 유지**: 상태 업데이트 시 불변성 보장
-4. **접근성 고려**: ARIA 라벨 및 키보드 네비게이션
-
-### **확장 가능성**
-
-- **새로운 뷰 모드**: 주간/일간 뷰 추가 가능
-- **외부 API 연동**: REST API나 GraphQL 연동 준비됨
-- **다국어 지원**: i18n 라이브러리 추가 가능
-- **테마 시스템**: CSS 변수 기반 테마 전환
+**🌐 브라우저에서 http://localhost:5173 으로 자동 접속됩니다!**
 
 ---
 
-![React](https://img.shields.io/badge/React-19.1.0-61DAFB?style=flat-square&logo=react)
-![Vite](https://img.shields.io/badge/Vite-7.0.4-646CFF?style=flat-square&logo=vite)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4.1-38B2AC?style=flat-square&logo=tailwind-css)
+## 🏗️ **프로젝트 구조**
 
+```
+personal-calendar-web/
+├── 📁 frontend/                 # React Frontend (Vite)
+│   ├── 📁 src/
+│   │   ├── 📄 App.jsx          # 메인 앱 컨테이너
+│   │   ├── 📁 components/      # React 컴포넌트들
+│   │   ├── 📁 hooks/           # 커스텀 훅 (3-Layer 구조)
+│   │   │   ├── useApiSchedule.js  # 📊 API 데이터 관리
+│   │   │   ├── useUI.js           # 🎨 UI 상태 관리
+│   │   │   └── useCalendarHandlers.js # 🔄 이벤트 핸들링
+│   │   ├── 📁 services/        # API 통신 서비스
+│   │   │   └── api.js          # 백엔드 API 연결
+│   │   ├── 📁 constants/       # 색상, 메시지 상수
+│   │   └── 📁 utils/           # 유틸리티 함수
+├── 📁 backend/                  # Node.js Backend (Express)
+│   ├── 📄 server.js            # Express 서버 메인
+│   ├── 📁 database/            # SQLite 데이터베이스
+│   │   ├── 📄 database.js      # DB 연결 및 스키마
+│   │   └── 📁 data/           # SQLite 파일 저장소
+│   │       └── calendar.db    # 실제 DB 파일
+│   ├── 📁 routes/              # API 라우트 (간소화)
+│   │   ├── 📄 events.js       # 이벤트 CRUD API
+│   │   └── 📄 categories.js   # 카테고리 API
+│   └── 📄 package.json
+├── 📄 start.bat                # Windows 실행 스크립트
+├── 📄 package.json             # 루트 패키지 (concurrently 설정)
+├── 📄 README.md               # 이 파일
+└── 📄 .gitignore              # Git 무시 파일 설정
+```
 
+## 📊 **간소화된 데이터베이스 구조**
+
+### **SQLite 테이블 (단 2개!)**
+
+1. **📅 events** - 모든 일정 데이터
+   ```sql
+   - id (PRIMARY KEY)
+   - title (일정 제목)
+   - description (메모)
+   - start_datetime (시작 날짜시간)
+   - end_datetime (종료 날짜시간)
+   - is_all_day (종일 여부)
+   - color (색상)
+   - created_at, updated_at
+   ```
+
+2. **🏷️ categories** - 기본 카테고리
+   ```sql
+   - id (PRIMARY KEY) 
+   - name (카테고리 이름)
+   - color (색상)
+   - icon (아이콘)
+   - sort_order (정렬 순서)
+   - created_at
+   ```
+
+### **🎯 핵심 기능**
+
+✅ **스마트 색상 시간 설정** - 색상 클릭으로 1시간 15분 간격 자동 설정  
+✅ **다중일 이벤트** - 정확한 시작/종료 날짜시간 지원  
+✅ **종일 이벤트** - 시간 없는 하루 종일 일정  
+✅ **24시간 제한** - 종료시간 24:00 초과 방지  
+✅ **실시간 저장** - SQLite 데이터베이스 즉시 저장  
+✅ **드래그 미니 캘린더** - 날짜 선택을 위한 움직이는 달력  
+
+## 🔧 **API 엔드포인트 (간소화)**
+
+### **📅 이벤트 (Events)**
+```
+GET    /api/events              # 모든 이벤트 조회
+POST   /api/events              # 새 이벤트 생성
+GET    /api/events/:id          # 특정 이벤트 조회
+PUT    /api/events/:id          # 이벤트 수정
+DELETE /api/events/:id          # 이벤트 삭제
+```
+
+### **🏷️ 카테고리 (Categories)**
+```
+GET    /api/categories          # 모든 카테고리 조회
+POST   /api/categories          # 새 카테고리 생성
+```
+
+## 📋 **사용 가능한 명령어**
+
+### **개발 명령어**
+```bash
+npm run dev              # 🚀 프론트엔드 + 백엔드 동시 실행
+npm run dev:backend      # 📡 백엔드만 실행 (포트 3001)
+npm run dev:frontend     # 🌐 프론트엔드만 실행 (포트 5173, 자동 브라우저 실행)
+```
+
+### **설치 명령어** (start.bat에서 자동 실행)
+```bash
+npm run install:backend  # 📦 백엔드 의존성 설치
+npm run install:frontend # 📦 프론트엔드 의존성 설치
+```
+
+### **코드 품질**
+```bash
+npm run lint             # 🔍 프론트엔드 코드 검사 (ESLint)
+```
+
+## 🎨 **색상 기반 시간 자동 설정**
+
+일정 추가/수정 시 색상을 선택하면 자동으로 시간이 설정됩니다:
+
+| 색상 | 번호 | 시작시간 | 종료시간 | 용도 |
+|------|------|----------|----------|------|
+| 🟡 노랑 | 1 | 09:00 | 10:15 | 1교시 |
+| 🩷 분홍 | 2 | 10:30 | 11:45 | 2교시 |
+| 💚 초록 | 3 | 12:00 | 13:15 | 점심/3교시 |
+| 💙 파랑 | 4 | 13:30 | 14:45 | 4교시 |
+| 🧡 주황 | 5 | 15:00 | 16:15 | 5교시 |
+| 💜 보라 | 6 | 16:30 | 17:45 | 6교시 |
+| 🔴 빨강 | - | 00:00 | 00:00 | 사용자 지정 |
+| 🟢 연두 | - | 00:00 | 00:00 | 사용자 지정 |
+
+## 💾 **데이터 저장소**
+
+### **로컬 SQLite 파일**
+- **위치**: `backend/data/calendar.db`
+- **특징**: 프로젝트 내 파일로 저장, 완전 포터블
+- **백업**: DB 파일 복사로 간단 백업
+- **크기**: 경량 (수천개 이벤트도 몇 MB 이내)
+
+## 🔧 **환경 설정**
+
+### **Backend**
+- **포트**: 3001 (자동 할당)
+- **데이터베이스**: SQLite (로컬 파일)
+- **CORS**: 프론트엔드 도메인만 허용
+
+### **Frontend** 
+- **포트**: 5173 (Vite 기본)
+- **자동 브라우저**: `vite --open` 옵션으로 자동 실행
+- **API URL**: http://localhost:3001/api
+
+## 🆘 **트러블슈팅**
+
+### **서버가 시작되지 않는 경우**
+```bash
+# Node.js 버전 확인
+node --version  # 18.0 이상 필요
+
+# 포트 사용 중 확인
+netstat -ano | findstr :3001
+netstat -ano | findstr :5173
+```
+
+### **데이터베이스 초기화**
+```bash
+# backend/data/calendar.db 파일 삭제 후 다시 실행
+del backend\data\calendar.db
+start.bat
+```
+
+### **브라우저가 자동으로 열리지 않는 경우**
+- 수동으로 http://localhost:5173 접속
+- 방화벽에서 포트 5173 허용 확인
+
+## 🖥️ **바탕화면 바로가기 설정**
+
+### **1. 바로가기 생성**
+1. 바탕화면 **우클릭** → **새로 만들기** → **바로가기**
+2. **위치 입력**: `C:\project\personal-calendar-web\start.bat`
+3. **이름**: `Personal Calendar`
+
+### **2. 아이콘 변경** (선택사항)
+1. 바로가기 **우클릭** → **속성**
+2. **아이콘 변경** → **찾아보기** 
+3. `%SystemRoot%\System32\imageres.dll` → 인덱스 177번 (캘린더 아이콘)
+
+### **3. 사용법**
+- **실행**: 바탕화면 아이콘 더블클릭
+- **종료**: 터미널에서 **Ctrl+C** (모든 서버 동시 종료)
+
+## 🌟 **주요 개선사항**
+
+### **⚡ 성능 최적화**
+- React 19 최신 기능 활용
+- SQLite 인덱스로 빠른 날짜 쿼리
+- Vite 빌드 도구로 빠른 개발/빌드
+
+### **🎯 사용성 개선**
+- 한 번의 클릭으로 모든 서버 시작
+- 색상 기반 스마트 시간 설정
+- 직관적인 3-Layer 훅 아키텍처
+
+### **🔒 데이터 안정성**
+- SQLite 트랜잭션 지원
+- 타입 체크 및 데이터 검증
+- 에러 핸들링 및 폴백 로직
+
+---
+
+**🎉 개인용 최적화된 간단하고 강력한 캘린더 애플리케이션!**
+
+**🖱️ 바탕화면 아이콘 한 번만 클릭하면 모든 것이 자동으로 실행됩니다!**

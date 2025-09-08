@@ -104,6 +104,23 @@ temp/
 *.sln
 *.sw?
 
+# Database files
+backend/data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Backup files
+backend/backups/
+
+# Temporary batch files (keep only main ones)
+launch-calendar.bat
+start-calendar.bat
+
+# Development documentation files
+바탕화면_바로가기_만들기.md
+
 # Claude Code files
 .claude/
 CLAUDE.md
@@ -111,3 +128,6 @@ CLAUDE.md
 # Development documentation
 TECHNICAL_DOCUMENTATION.md
 수정&개선.txt
+
+# My-scheduler-app (old version - if exists)
+my-scheduler-app/
