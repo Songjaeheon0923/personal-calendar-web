@@ -39,6 +39,20 @@ function ScheduleDetailModal({
   const titleRef = useRef(null);
   const startTimeRef = useRef(null);
   const endTimeRef = useRef(null);
+  const memoRef = useRef(null);
+
+  // 메모 포커스 처리
+  useEffect(() => {
+    if (isOpen && selectedSchedule?.focusMemo && memoRef.current) {
+      // 약간의 지연을 주어 모달이 완전히 렌더링된 후 포커스
+      setTimeout(() => {
+        memoRef.current.focus();
+        // 커서를 텍스트 끝으로 이동
+        const length = memoRef.current.value.length;
+        memoRef.current.setSelectionRange(length, length);
+      }, 100);
+    }
+  }, [isOpen, selectedSchedule?.focusMemo]);
 
   // 외부 클릭 감지
   useEffect(() => {
@@ -285,6 +299,7 @@ function ScheduleDetailModal({
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">메모</label>
             <textarea
+              ref={memoRef}
               value={formData.editMemo}
               onChange={e => onFormDataChange({ editMemo: e.target.value })}
               onKeyDown={(e) => {

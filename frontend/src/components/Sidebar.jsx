@@ -103,9 +103,15 @@ function Sidebar({
                       e.preventDefault();
                       e.stopPropagation();
                       
+                      // 기존 컨텍스트 메뉴가 있으면 제거
+                      const existingMenu = document.querySelector('.schedule-context-menu');
+                      if (existingMenu) {
+                        document.body.removeChild(existingMenu);
+                      }
+                      
                       // 간단한 컨텍스트 메뉴 표시
                       const menu = document.createElement('div');
-                      menu.className = 'fixed bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-2 min-w-[120px]';
+                      menu.className = 'schedule-context-menu fixed bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-2 min-w-[120px]';
                       menu.style.left = `${e.clientX}px`;
                       menu.style.top = `${e.clientY}px`;
                       
@@ -135,14 +141,18 @@ function Sidebar({
                       
                       // 클릭 외부 영역 클릭시 메뉴 닫기
                       const closeMenu = (event) => {
-                        if (!menu.contains(event.target)) {
-                          document.body.removeChild(menu);
+                        if (menu && !menu.contains(event.target)) {
+                          if (document.body.contains(menu)) {
+                            document.body.removeChild(menu);
+                          }
                           document.removeEventListener('click', closeMenu);
+                          document.removeEventListener('contextmenu', closeMenu);
                         }
                       };
                       
                       setTimeout(() => {
                         document.addEventListener('click', closeMenu);
+                        document.addEventListener('contextmenu', closeMenu);
                       }, 100);
                     }}
                     style={{
@@ -191,7 +201,67 @@ function Sidebar({
                   <div className={`overflow-hidden transition-all duration-300 ease-in-out ${
                     expandedEventIds.includes(schedule.id) ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                   }`}>
-                    <div className="px-4 pb-4 border-t border-gray-100 bg-gradient-to-b from-gray-50 to-white">
+                    <div 
+                      className="px-4 pb-4 border-t border-gray-100 bg-gradient-to-b from-gray-50 to-white"
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // 기존 컨텍스트 메뉴가 있으면 제거
+                        const existingMenu = document.querySelector('.schedule-context-menu');
+                        if (existingMenu) {
+                          document.body.removeChild(existingMenu);
+                        }
+                        
+                        // 간단한 컨텍스트 메뉴 표시
+                        const menu = document.createElement('div');
+                        menu.className = 'schedule-context-menu fixed bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-2 min-w-[120px]';
+                        menu.style.left = `${e.clientX}px`;
+                        menu.style.top = `${e.clientY}px`;
+                        
+                        // 수정 버튼
+                        const editBtn = document.createElement('button');
+                        editBtn.className = 'w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2';
+                        editBtn.innerHTML = '<span>✏️</span> 수정';
+                        editBtn.onclick = () => {
+                          // 메모 포커스를 위한 플래그와 함께 수정 모달 열기
+                          const scheduleWithFocus = { ...schedule, focusMemo: true };
+                          onEditSchedule(scheduleWithFocus);
+                          document.body.removeChild(menu);
+                        };
+                        
+                        // 삭제 버튼  
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2';
+                        deleteBtn.innerHTML = '<span>🗑️</span> 삭제';
+                        deleteBtn.onclick = () => {
+                          if (window.confirm('정말로 이 일정을 삭제하시겠습니까?')) {
+                            onDeleteSchedule(schedule.id);
+                          }
+                          document.body.removeChild(menu);
+                        };
+                        
+                        menu.appendChild(editBtn);
+                        menu.appendChild(deleteBtn);
+                        document.body.appendChild(menu);
+                        
+                        // 클릭 외부 영역 클릭시 메뉴 닫기
+                        const closeMenu = (event) => {
+                          if (menu && !menu.contains(event.target)) {
+                            if (document.body.contains(menu)) {
+                              document.body.removeChild(menu);
+                            }
+                            document.removeEventListener('click', closeMenu);
+                            document.removeEventListener('contextmenu', closeMenu);
+                          }
+                        };
+                        
+                        setTimeout(() => {
+                          document.addEventListener('click', closeMenu);
+                          document.addEventListener('contextmenu', closeMenu);
+                        }, 100);
+                      }}
+                    >
                       <div className="pt-4">
                         {schedule.memo && (
                           <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">

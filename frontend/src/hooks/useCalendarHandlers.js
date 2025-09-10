@@ -152,14 +152,16 @@ export function useCalendarHandlers(schedule, ui) {
       
       // Access event from context menu state
       if (eventId) {
-        const deleteScheduleFn = schedule.deleteSchedule(
-          ui.sidebarDate, 
-          ui.setSidebarSchedules, 
-          ui.showSidebar, 
-          ui.setExpandedEventIds, 
-          ui.expandedEventIds
-        );
-        deleteScheduleFn(eventId);
+        if (window.confirm('정말로 이 일정을 삭제하시겠습니까?')) {
+          const deleteScheduleFn = schedule.deleteSchedule(
+            ui.sidebarDate, 
+            ui.setSidebarSchedules, 
+            ui.showSidebar, 
+            ui.setExpandedEventIds, 
+            ui.expandedEventIds
+          );
+          deleteScheduleFn(eventId);
+        }
         ui.closeEventContextMenu();
       } else {
         console.warn('No event ID found for deletion');

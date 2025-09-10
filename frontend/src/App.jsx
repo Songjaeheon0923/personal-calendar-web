@@ -20,12 +20,23 @@ function App() {
     <div className="w-screen h-screen bg-gray-100 flex flex-col">
       <header className="py-4 px-8 bg-white shadow flex-none flex justify-between items-center">
         <h1 className="text-3xl font-bold text-blue-600">My Calander</h1>
-        <button
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
-          onClick={handlers.handleOpenAddModal}
-        >
-          + 새 일정 추가
-        </button>
+        <div className="flex gap-3">
+          {schedule.lastDeletedSchedule && (
+            <button
+              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium"
+              onClick={schedule.undoDeleteSchedule}
+              disabled={schedule.loading}
+            >
+              ↶ 되돌리기
+            </button>
+          )}
+          <button
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+            onClick={handlers.handleOpenAddModal}
+          >
+            + 새 일정 추가
+          </button>
+        </div>
       </header>
 
       <main className="flex-1 flex p-6 gap-6 overflow-hidden">

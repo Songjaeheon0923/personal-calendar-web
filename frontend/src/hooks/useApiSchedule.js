@@ -16,6 +16,7 @@ export function useApiSchedule() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [lastDeletedSchedule, setLastDeletedSchedule] = useState(null);
   
   // Form states (keeping same interface as original)
   const [selectedDate, setSelectedDate] = useState(null);
@@ -277,6 +278,12 @@ export function useApiSchedule() {
       try {
         setLoading(true);
         
+        // Find the schedule to be deleted and save it for undo
+        const scheduleToDelete = schedules.find(schedule => schedule.id === scheduleId);
+        if (scheduleToDelete) {
+          setLastDeletedSchedule(scheduleToDelete);
+        }
+        
         // Delete via API
         await apiService.deleteEvent(scheduleId);
         
@@ -303,6 +310,41 @@ export function useApiSchedule() {
       }
     };
   }, [schedules, getFilteredSchedules]);
+
+  /**
+   * Undo last deleted schedule
+   */
+  const undoDeleteSchedule = useCallback(async () => {
+    if (!lastDeletedSchedule) {
+      console.warn('No schedule to undo');
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      
+      // Convert to API format
+      const eventData = apiService.convertLegacyScheduleToEvent(lastDeletedSchedule);
+      
+      // Create via API (restore the schedule)
+      const createdEvent = await apiService.createEvent(eventData);
+      
+      // Convert back to legacy format and update local state
+      const restoredSchedule = apiService.convertEventToLegacySchedule(createdEvent);
+      const updatedSchedules = [...schedules, restoredSchedule];
+      setSchedules(updatedSchedules);
+      
+      // Clear the undo state
+      setLastDeletedSchedule(null);
+      
+      console.log('Schedule restored successfully');
+    } catch (error) {
+      console.error('Error restoring schedule:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [lastDeletedSchedule, schedules]);
 
   /**
    * Select schedule for editing (same as original)
@@ -378,6 +420,10 @@ export function useApiSchedule() {
     selectScheduleForEdit,
     getFilteredSchedules,
     refreshData,
+    undoDeleteSchedule,
+    
+    // Undo state
+    lastDeletedSchedule,
     
     // API utilities
     apiService
